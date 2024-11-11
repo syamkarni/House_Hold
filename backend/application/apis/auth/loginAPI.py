@@ -4,7 +4,7 @@ from flask_security import login_user
 from flask_security.utils import verify_password, hash_password
 from flask_jwt_extended import create_access_token, create_refresh_token, jwt_required, get_jwt_identity 
 
-#from application.data.model import db, User, UserRole, Role #complete this!! #incomplete
+from application.data.model import db, User, UserRole, Role
 
 user_post_args= reqparse.RequestParser()
 user_post_args.add_argument("u_mail",type=str, required=True, help="User mail is required!")
@@ -17,14 +17,14 @@ class LoginAPI(Resource):
         password=args.get('password')
 
 
-        user=User.query.filter_by(u_mail=u_mail).first() #create and import user from model! #incomplete
+        user=User.query.filter_by(u_mail=u_mail).first() 
 
         if user is None:
             return jsonify({'status': 'failed', 'message': 'User not found (This email is not registered)'}), 404
         if verify_password(password,user.password):
             return jsonify({'status': 'failed', 'message': 'Wrong password'}), 401
         
-        user_role=UserRole.query.filter_by(user_id=user.user_id).first() #create and import userrole from model! #incomplete
+        user_role=UserRole.query.filter_by(user_id=user.user_id).first() 
         role_name=user_role.role.name if user_role else 'No role assigned'
 
         refresh_token=create_refresh_token(identity=user.user_id)
