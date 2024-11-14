@@ -22,7 +22,7 @@ class User(db.Model, UserMixin):
 
     roles=db.relationship('UserRole', backref='user')
     customer=db.relationship('Customer', backref='user')
-    service_profissional=db.relationship('ServiceProfissional', backref='user')
+    service_profissional=db.relationship('ServiceProfessional', backref='user')
     #add accodingly here #incomplete
 
     def __init__(self, u_mail, password, fs_uniquifier):
@@ -52,7 +52,7 @@ class Customer(db.Model):
         self.address=address
         self.phone=phone
 
-class ServiceProfissional(db.Model):
+class ServiceProfessional(db.Model):
     __tablename__='service_profissional'
     id=db.Column(db.Integer, primary_key=True)
     user_id=db.Column(db.Integer, db.ForeignKey('user.user_id'))
@@ -118,7 +118,7 @@ class Review(db.Model):
     date_posted=db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     customer=db.relationship('Customer', backref='review')
-    professional=db.relationship('ServiceProfissional', backref='review')
+    professional=db.relationship('ServiceProfessional', backref='review')
 
 
     def __init__(self, service_request_id, customer_id, professional_id, rating, comment):

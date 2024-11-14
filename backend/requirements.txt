@@ -7,3 +7,10 @@ bcrypt
 celery
 redis
 secure-smtplib
+flask_migrate
+flask_jwt_extended
+flask_restful
+flask_cors
+setuptools
+flask_caching
+flask_mail
