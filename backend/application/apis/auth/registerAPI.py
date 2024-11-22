@@ -1,11 +1,11 @@
 from flask import Blueprint, jsonify
 import secrets
-from werkzeug.security import generate_password_hash
+#from werkzeug.security import generate_password_hash
+from flask_security.utils import hash_password
 from flask_restful import Resource, reqparse, Api
 from application.data.model import db, User, Role, UserRole
 
-from .loginAPI import auth_bp
-
+from . import auth_bp
 
 auth_api = Api(auth_bp)
 
@@ -28,7 +28,7 @@ class RegisterAPI(Resource):
         if user:
             return {'status': 'failed', 'message': 'This email is already registered'}, 409
 
-        hashed_password = generate_password_hash(password)
+        hashed_password = hash_password(password)
         fs_uniquifier = secrets.token_hex(16)
 
         new_user = User(u_mail=u_mail, password=hashed_password, fs_uniquifier=fs_uniquifier)

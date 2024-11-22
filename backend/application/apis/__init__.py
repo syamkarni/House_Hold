@@ -1,4 +1,6 @@
-from .auth.loginAPI import auth_bp
+# application/apis/__init__.py
+
+from .auth import auth_bp
 from .admin.adminAPI import admin_bp
 from .customer.customerAPI import customer_bp
 from .professional.professionalAPI import professional_bp

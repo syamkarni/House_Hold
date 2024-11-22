@@ -8,7 +8,7 @@ from flask_jwt_extended import (
 )
 
 from application.data.model import db, User, UserRole
-
+from . import auth_bp
 # Initialize Blueprint
 auth_bp = Blueprint('auth_bp', __name__)
 auth_api = Api(auth_bp)
@@ -22,6 +22,8 @@ class LoginAPI(Resource):
         args = user_post_args.parse_args()
         u_mail = args.get('u_mail')
         password = args.get('password')
+        if not u_mail or not password:
+            return {'status': 'failed', 'message': 'Email and password are required'}, 400
 
         user = User.query.filter_by(u_mail=u_mail).first()
 
