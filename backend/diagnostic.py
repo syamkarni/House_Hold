@@ -10,6 +10,7 @@ def check_directory_structure(base_dir):
             'data': {
                 '__init__.py': 'file',
                 'model.py': 'file',
+                'database.py': 'file',
             },
             'apis': {
                 '__init__.py': 'file',
@@ -18,7 +19,6 @@ def check_directory_structure(base_dir):
                     'loginAPI.py': 'file',
                     'registerAPI.py': 'file',
                 },
-                # Add other API directories here
                 'admin': {
                     '__init__.py': 'file',
                     'adminAPI.py': 'file',
@@ -35,10 +35,6 @@ def check_directory_structure(base_dir):
                     '__init__.py': 'file',
                     'serviceAPI.py': 'file',
                 },
-                'service_request': {
-                    '__init__.py': 'file',
-                    'serviceRequestAPI.py': 'file',
-                },
                 'search': {
                     '__init__.py': 'file',
                     'searchAPI.py': 'file',
@@ -54,6 +50,7 @@ def check_directory_structure(base_dir):
             'tasks.py': 'file',
         },
         'main.py': 'file',
+        'diagnostic.py': 'file',
     }
 
     def check_path(current_path, structure):
@@ -72,14 +69,33 @@ def check_directory_structure(base_dir):
 
 def attempt_imports():
     modules_to_import = [
+        # Core Application Modules
         'application',
+        'application.data',
         'application.data.model',
+        'application.data.database',
         'application.security',
+        'application.cache',
+        'application.tasks',
+        'application.config',
+
+        # API Blueprints
         'application.apis',
         'application.apis.auth',
         'application.apis.auth.loginAPI',
         'application.apis.auth.registerAPI',
-        # Add other modules as needed
+        'application.apis.admin',
+        'application.apis.admin.adminAPI',
+        'application.apis.customer',
+        'application.apis.customer.customerAPI',
+        'application.apis.professional',
+        'application.apis.professional.professionalAPI',
+        'application.apis.service',
+        'application.apis.service.serviceAPI',
+        'application.apis.search',
+        'application.apis.search.searchAPI',
+        'application.apis.reports',
+        'application.apis.reports.reportsAPI',
     ]
 
     for module_name in modules_to_import:

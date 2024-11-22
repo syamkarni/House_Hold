@@ -14,3 +14,4 @@ flask_cors
 setuptools
 flask_caching
 flask_mail
+argon2_cffi

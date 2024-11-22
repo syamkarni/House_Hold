@@ -16,7 +16,9 @@ import application.config as config
 
 
 
+
 app = Flask(__name__)
+app.config.from_object(config)
 app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLALCHEMY_DATABASE_URI
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = config.SQLALCHEMY_TRACK_MODIFICATIONS
@@ -29,9 +31,10 @@ app.config['CELERY_RESULT_BACKEND'] = config.CELERY_RESULT_BACKEND
 db.init_app(app)
 
 migrate = Migrate(app, db)
-security = Security(app, user_datastore)
+security = Security(app, user_datastore, csrf_protect=False)
 jwt = JWTManager(app)
 
+print("SECURITY_CSRF_PROTECT:", app.config.get("SECURITY_CSRF_PROTECT"))
 
 CORS(app)
 cache.init_app(app)

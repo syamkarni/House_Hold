@@ -3,6 +3,8 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 SECRET_KEY = 'your_secret_key'  # need to set this #incomplete
 SECURITY_PASSWORD_SALT= 'salt'
+WTF_CSRF_ENABLED = False
+SECURITY_CSRF_PROTECT = False
 
 #celeryy config here
 CELERY_BROKER_URL = 'redis://localhost:6379/0'

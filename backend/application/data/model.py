@@ -8,7 +8,8 @@ class Role(db.Model, RoleMixin):
     name=db.Column(db.String(50), unique=True)
     description=db.Column(db.String(255))
 
-    users=db.relationship('UserRole', backref='role') # add lazy='dynamic' to make it a query ???
+    #users=db.relationship('UserRole', backref='role') # add lazy='dynamic' to make it a query ???
+    users = db.relationship('User', secondary='user_role', backref=db.backref('roles', lazy='dynamic'))
 
 class User(db.Model, UserMixin):
     __tablename__='user'
@@ -25,10 +26,10 @@ class User(db.Model, UserMixin):
     service_profissional=db.relationship('ServiceProfessional', backref='user')
     #add accodingly here #incomplete
 
-    def __init__(self, u_mail, password, fs_uniquifier):
-        self.u_mail=u_mail
-        self.password=password
-        self.fs_uniquifier=fs_uniquifier
+    # def __init__(self, u_mail, password, fs_uniquifier):
+    #     self.u_mail=u_mail
+    #     self.password=password
+    #     self.fs_uniquifier=fs_uniquifier
 
 class UserRole(db.Model):
     id=db.Column(db.Integer, primary_key=True)
@@ -46,11 +47,11 @@ class Customer(db.Model):
 
     service_request=db.relationship('ServiceRequest', backref='customer')
 
-    def __init__(self, user_id, name, address=None, phone=None):
-        self.user_id=user_id
-        self.name=name
-        self.address=address
-        self.phone=phone
+    # def __init__(self, user_id, name, address=None, phone=None):
+    #     self.user_id=user_id
+    #     self.name=name
+    #     self.address=address
+    #     self.phone=phone
 
 class ServiceProfessional(db.Model):
     __tablename__='service_profissional'
@@ -67,13 +68,13 @@ class ServiceProfessional(db.Model):
 
     service_request=db.relationship('ServiceRequest', backref='profissional')
     
-    def __init__(self, user_id, name, date_created=None, description=None, service_type=None, experience=None):
-        self.user_id=user_id
-        self.name=name
-        self.date_created=date_created
-        self.description=description
-        self.service_type=service_type
-        self.experience=experience
+    # def __init__(self, user_id, name, date_created=None, description=None, service_type=None, experience=None):
+    #     self.user_id=user_id
+    #     self.name=name
+    #     self.date_created=date_created
+    #     self.description=description
+    #     self.service_type=service_type
+    #     self.experience=experience
 class Service(db.Model):
     __tablename__='service'
     id=db.Column(db.Integer, primary_key=True)
@@ -84,11 +85,11 @@ class Service(db.Model):
 
     service_request=db.relationship('ServiceRequest', backref='service')
 
-    def __init__(self, name, price, time_required=None, description=None):
-        self.name=name
-        self.price=price
-        self.time_required=time_required
-        self.description=description
+    # def __init__(self, name, price, time_required=None, description=None):
+    #     self.name=name
+    #     self.price=price
+    #     self.time_required=time_required
+    #     self.description=description
 
 class ServiceRequest(db.Model):
     __tablename__='service_request'
@@ -103,12 +104,12 @@ class ServiceRequest(db.Model):
 
     review=db.relationship('Review', backref='service_request')
 
-    def __init__(self, service_id, customer_id, remarks=None):
-        self.service_id=service_id
-        self.customer_id=customer_id
-        self.remarks=remarks
+    # def __init__(self, service_id, customer_id, remarks=None):
+    #     self.service_id=service_id
+    #     self.customer_id=customer_id
+    #     self.remarks=remarks
 class Review(db.Model):
-    __talbename__='review'
+    __tablename__='review'
     id=db.Column(db.Integer, primary_key=True)
     servie_request_id=db.Column(db.Integer, db.ForeignKey('service_request.id'))
     customer_id=db.Column(db.Integer, db.ForeignKey('customer.id'))
@@ -121,9 +122,9 @@ class Review(db.Model):
     professional=db.relationship('ServiceProfessional', backref='review')
 
 
-    def __init__(self, service_request_id, customer_id, professional_id, rating, comment):
-        self.service_request_id=service_request_id
-        self.customer_id=customer_id
-        self.professional_id=professional_id
-        self.rating=rating
-        self.comment=comment
+    # def __init__(self, service_request_id, customer_id, professional_id, rating, comment):
+    #     self.service_request_id=service_request_id
+    #     self.customer_id=customer_id
+    #     self.professional_id=professional_id
+    #     self.rating=rating
+    #     self.comment=comment
