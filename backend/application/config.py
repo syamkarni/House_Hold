@@ -7,7 +7,7 @@ JWT_SECRET_KEY = 'your_jwt_secret_key'
 # Flask-Security Configurations
 SECURITY_PASSWORD_HASH = 'pbkdf2_sha512'
 SECURITY_PASSWORD_SALT = 'your_password_salt'  # Replace with a secure random salt
-SECURITY_PASSWORD_SINGLE_HASH = {"plaintext"}  # Minimal setting to support single hashing
+
 
 # Celery Configurations
 CELERY_BROKER_URL = 'redis://localhost:6379/0'

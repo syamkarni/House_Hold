@@ -1,5 +1,5 @@
 from .database import db
-from flask_security.utils import verify_password, hash_password
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
 
 class Role(db.Model):
@@ -24,14 +24,10 @@ class User(db.Model):
 
     # Add methods for password hashing and verification
     def set_password(self, password):
-        self.password = hash_password(password)
+        self.password = generate_password_hash(password)
 
     def check_password(self, password):
-        is_valid = verify_password(self.password, password)
-        print(f"Checking password: {password}")
-        print(f"Stored hash: {self.password}")
-        print(f"Password valid: {is_valid}")
-        return is_valid
+        return check_password_hash(self.password, password)
 
     def get_roles(self):
         return [role.name for role in self.roles]
