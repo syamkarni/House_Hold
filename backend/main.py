@@ -2,12 +2,10 @@ import os
 from flask import Flask
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
-from flask_restful import Api
 from flask_cors import CORS
 from flask_caching import Cache
 from flask_mail import Mail
-from flask_security import Security, SQLAlchemyUserDatastore
-from application.data.model import db, User, Role
+from application.data.model import db
 from application.cache import cache
 from application.apis import api_blueprints
 from application.tasks import make_celery
@@ -16,7 +14,7 @@ import application.config as config
 app = Flask(__name__)
 app.config.from_object(config)
 
-# Initialize Flask extensions
+
 db.init_app(app)
 migrate = Migrate(app, db)
 jwt = JWTManager(app)
@@ -26,11 +24,10 @@ cache.init_app(app)
 mail = Mail(app)
 celery = make_celery(app)
 
-# Flask-Security Setup
-user_datastore = SQLAlchemyUserDatastore(db, User, Role)
-security = Security(app, user_datastore)  # Initialize Flask-Security
 
-# Register Blueprints
+
+
+
 for bp in api_blueprints:
     app.register_blueprint(bp)
 
@@ -39,9 +36,9 @@ def index():
     return {
         "message": "Welcome to the Household Services API!",
         "endpoints": {
-            "Register User": "/register (POST)",
-            "Login User": "/login (POST)",
-            "Refresh Token": "/refresh (POST)",
+            "Register User": "/auth/register (POST)",
+            "Login User": "/auth/login (POST)",
+            "Refresh Token": "/auth/refresh (POST)",
             "Create Service Request": "/customer/service_request (POST)",
             "View Service Requests": "/customer/service_requests (GET)"
         }
