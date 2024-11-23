@@ -10,10 +10,16 @@ from application.cache import cache
 from application.apis import api_blueprints
 from application.tasks import make_celery
 import application.config as config
+from flask import jsonify
+
 
 app = Flask(__name__)
 app.config.from_object(config)
 
+
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({'message': 'Resource not found'}), 404
 
 db.init_app(app)
 migrate = Migrate(app, db)
