@@ -35,6 +35,8 @@
           });
           localStorage.setItem('access_token', response.data.access_token);
           localStorage.setItem('refresh_token', response.data.refresh_token);
+          localStorage.esetItem('user_role', response.data.roles[0]);
+          
           const role = response.data.roles[0];
           if (role === 'admin') {
             this.$router.push('/admin');

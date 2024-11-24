@@ -37,6 +37,25 @@ const router = createRouter({
   routes,
 });
 
+router.beforeEach((to, from, next) => {
+  const requiresAuth = to.meta.requiresAuth;
+  const userRole = localStorage.getItem('userRole');
+  const isAuthentiacted = !!localStorage.getItem('access_token');
+
+  if(requiresAuth){
+    if(isAuthentiacted){
+      if(to.meta.role==userRole){
+        next();
+      } else{
+        next('/login');
+      }
+    } else{
+      next('/login');
+    }
+  } else{
+    next();
+  }
+});
 
 
 export default router;
