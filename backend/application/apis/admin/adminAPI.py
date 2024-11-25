@@ -171,6 +171,35 @@ class DeleteService(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'message': 'An error occurred while deleting service', 'error': str(e)}, 500
+        
+class PendingProfessionals(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            pending_professionals = ServiceProfessional.query.filter_by(approved=False).all()
+
+
+            professionals_data = [
+                {
+                    "id": professional.id,
+                    "name": professional.name,
+                    "service_type": professional.service_type,
+                    "experience": professional.experience,
+                    "description": professional.description
+                }
+                for professional in pending_professionals
+            ]
+
+            return {"professionals": professionals_data}, 200
+        except SQLAlchemyError as e:
+            return {'message': 'An error occurred while fetching pending professionals', 'error': str(e)}, 500
+
 
 
 admin_api.add_resource(ApproveProfessional, '/admin/professional/<int:professional_id>/approve')
@@ -180,3 +209,4 @@ admin_api.add_resource(CreateService, '/admin/service')
 admin_api.add_resource(UpdateService, '/admin/service/<int:service_id>')
 admin_api.add_resource(DeleteService, '/admin/service/<int:service_id>')
 admin_api.add_resource(GetUsers, '/admin/users')
+admin_api.add_resource(PendingProfessionals, '/admin/professionals/pending')
