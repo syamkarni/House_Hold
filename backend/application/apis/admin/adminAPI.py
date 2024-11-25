@@ -107,6 +107,31 @@ class CreateService(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'message': 'An error occurred while creating service', 'error': str(e)}, 500
+        
+class GetUsers(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            users = User.query.all()
+            users_data = [
+                {
+                    "user_id": user.user_id,
+                    "u_mail": user.u_mail,
+                    "roles": [role.name for role in user.roles],
+                    "is_blocked": not user.active
+                }
+                for user in users
+            ]
+
+            return {"users": users_data}, 200
+        except SQLAlchemyError as e:
+            return {'message': 'An error occurred while fetching users', 'error': str(e)}, 500
+
 
 class UpdateService(Resource):
     @jwt_required()
@@ -154,3 +179,4 @@ admin_api.add_resource(UnblockUser, '/admin/user/<int:user_id>/unblock')
 admin_api.add_resource(CreateService, '/admin/service')
 admin_api.add_resource(UpdateService, '/admin/service/<int:service_id>')
 admin_api.add_resource(DeleteService, '/admin/service/<int:service_id>')
+admin_api.add_resource(GetUsers, '/admin/users')
