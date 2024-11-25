@@ -6,6 +6,12 @@ import AdminDashboard from '@/views/Admin/AdminDashboard.vue';
 import CustomerDashboard from '@/views/Customer/CustomerDashboard.vue';
 import ProfessionalDashboard from '@/views/Professional/ProfessionalDashboard.vue';
 
+import ManageUser from '@/views/Admin/ManageUser.vue';
+import ManageServices from '@/views/Admin/ManageServices.vue';
+import ApproveProfessionals from '@/views/Admin/ApproveProfessionals.vue';
+import AdminReports from '@/views/Admin/AdminReports.vue';
+
+
 const routes = [
   {
     path: '/',
@@ -23,6 +29,28 @@ const routes = [
     path:'/admin',
     component: AdminDashboard,
     meta: { requiresAuth: true, role: "admin" },
+    children: [
+      {
+        path:'manage-users',
+        component: ManageUser,
+        meta: { requiresAuth: true, role: "admin" },
+      },
+      {
+        path:'manage-services',
+        component: ManageServices,
+        meta: { requiresAuth: true, role: "admin" },
+      },
+      {
+        path: 'approve-professionals',
+        component: ApproveProfessionals,
+        meta: { requiresAuth: true, role: "admin" },
+      },
+      {
+        path: 'admin-reports',
+        component: AdminReports,
+        meta: { requiresAuth: true, role: "admin" },
+      }
+    ]
   },
   {
     path:'/customer',
