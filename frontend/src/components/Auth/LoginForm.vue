@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="login">
+    <form @submit.prevent="loginUser">
       <div>
         <label>Email:</label>
         <input type="email" v-model="email" required />
@@ -15,6 +15,7 @@
   
   <script>
   import axios from '@/plugins/axios';
+  import { login } from '@/services/auth';
   
   export default {
     name: 'LoginForm',
@@ -26,16 +27,24 @@
       };
     },
     methods: {
-      async login() {
+      async loginUser() {
         this.error = null;
         try {
           const response = await axios.post('/auth/login', {
             u_mail: this.email,
             password: this.password,
           });
-          localStorage.setItem('access_token', response.data.access_token);
-          localStorage.setItem('refresh_token', response.data.refresh_token);
-          localStorage.setItem('user_role', response.data.roles[0]);
+
+        login(
+            response.data.access_token,
+            response.data.refresh_token,
+            response.data.roles[0]
+        );
+
+        // removed localstorage method, all thanks to service/auth.js
+        //   localStorage.setItem('access_token', response.data.access_token);
+        //   localStorage.setItem('refresh_token', response.data.refresh_token);
+        //   localStorage.setItem('user_role', response.data.roles[0]);
 
           const role = response.data.roles[0];
           if (role === 'admin') {

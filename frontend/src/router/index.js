@@ -1,4 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { authState } from '@/services/auth';
 import AuthLogin from '@/views/Auth/AuthLogin.vue';
 import AuthRegister from '@/views/Auth/AuthRegister.vue';
 import AdminDashboard from '@/views/Admin/AdminDashboard.vue';
@@ -42,8 +43,10 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth;
-  const userRole = localStorage.getItem('user_role');
-  const isAuthenticated = !!localStorage.getItem('access_token');
+  // const userRole = localStorage.getItem('user_role');
+  // const isAuthenticated = !!localStorage.getItem('access_token');
+  const userRole = authState.userRole;
+  const isAuthenticated = authState.isAuthenticated;
   //debugging
   console.log("Navigating to:", to.path);
   console.log("Requires Auth:", requiresAuth);
