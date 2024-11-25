@@ -40,14 +40,14 @@ class ExportCSV(Resource):
             writer = csv.writer(output)
             writer.writerow(['Service ID', 'Customer ID', 'Professional ID', 'Date of Request', 'Date of Completion', 'Remarks'])
 
-            for request in closed_requests:
+            for service_request in closed_requests:
                 writer.writerow([
-                    request.service_id,
-                    request.customer_id,
-                    request.professional_id,
-                    request.date_of_request.isoformat(),
-                    request.date_of_completion.isoformat() if request.date_of_completion else '',
-                    request.remarks
+                    service_request.service_id,
+                    service_request.customer_id,
+                    service_request.professional_id,
+                    service_request.date_of_request.isoformat(),
+                    service_request.date_of_completion.isoformat() if request.date_of_completion else '',
+                    service_request.remarks
                 ])
 
             output.seek(0)
