@@ -201,6 +201,34 @@ class PendingProfessionals(Resource):
             return {'message': 'An error occurred while fetching pending professionals', 'error': str(e)}, 500
 
 
+class RejectProfessional(Resource):
+    @jwt_required()
+    def delete(self, professional_id):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            professional = ServiceProfessional.query.get_or_404(professional_id)
+
+            if professional.approved:
+                return {'message': 'Cannot reject an already approved professional'}, 400
+            db.session.delete(professional)
+            db.session.commit()
+
+            return {'message': 'Service professional rejected successfully'}, 200
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'message': 'An error occurred while rejecting professional', 'error': str(e)}, 500
+        except Exception as e:
+            return {'message': 'An unexpected error occurred', 'error': str(e)}, 500
+
+
+
+
+
 
 admin_api.add_resource(ApproveProfessional, '/admin/professional/<int:professional_id>/approve')
 admin_api.add_resource(BlockUser, '/admin/user/<int:user_id>/block')
@@ -210,3 +238,4 @@ admin_api.add_resource(UpdateService, '/admin/service/<int:service_id>')
 admin_api.add_resource(DeleteService, '/admin/service/<int:service_id>')
 admin_api.add_resource(GetUsers, '/admin/users')
 admin_api.add_resource(PendingProfessionals, '/admin/professionals/pending')
+admin_api.add_resource(RejectProfessional, '/admin/professional/<int:professional_id>/reject')
