@@ -35,8 +35,8 @@
           });
           localStorage.setItem('access_token', response.data.access_token);
           localStorage.setItem('refresh_token', response.data.refresh_token);
-          localStorage.esetItem('user_role', response.data.roles[0]);
-          
+          localStorage.setItem('user_role', response.data.roles[0]);
+
           const role = response.data.roles[0];
           if (role === 'admin') {
             this.$router.push('/admin');
@@ -46,7 +46,8 @@
             this.$router.push('/professional');
           }
         } catch (err) {
-          this.error = 'Login failed. Please check your credentials.';
+            //remove this, no debugging required anymore in the future, do not remove by undo!!!:
+          this.error = ("Login failed. Please check your credentials.", err.response?.data || err.message);
         }
       },
     },

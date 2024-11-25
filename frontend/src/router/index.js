@@ -21,14 +21,17 @@ const routes = [
   {
     path:'/admin',
     component: AdminDashboard,
+    meta: { requiresAuth: true, role: "admin" },
   },
   {
     path:'/customer',
     component: CustomerDashboard,
+    meta: { requiresAuth: true, role: "customer" },
   },
   {
     path:'/professional',
     component: ProfessionalDashboard,
+    meta: { requiresAuth: true, role: "professional" },
   }
 ];
 
@@ -39,11 +42,16 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth;
-  const userRole = localStorage.getItem('userRole');
-  const isAuthentiacted = !!localStorage.getItem('access_token');
+  const userRole = localStorage.getItem('user_role');
+  const isAuthenticated = !!localStorage.getItem('access_token');
+  //debugging
+  console.log("Navigating to:", to.path);
+  console.log("Requires Auth:", requiresAuth);
+  console.log("User Role:", userRole);
+  console.log("Is Authenticated:", isAuthenticated);
 
   if(requiresAuth){
-    if(isAuthentiacted){
+    if(isAuthenticated){
       if(to.meta.role==userRole){
         next();
       } else{
