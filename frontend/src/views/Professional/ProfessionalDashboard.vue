@@ -1,8 +1,10 @@
 <template>
     <div>
       <h1>Professional Dashboard</h1>
-      <p>Welcome, Service Professional!</p>
-      <!-- functionalities here!! -->
+      <ul>
+        <li><router-link to="/professional/assigned-requests">Assigned Requests</router-link></li>
+      </ul>
+      <router-view></router-view>
     </div>
   </template>
   

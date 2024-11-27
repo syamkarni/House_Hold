@@ -11,6 +11,7 @@ import ManageServices from '@/views/Admin/ManageServices.vue';
 import ApproveProfessionals from '@/views/Admin/ApproveProfessionals.vue';
 import AdminReports from '@/views/Admin/AdminReports.vue';
 
+import AssignedRequests from '@/views/Professional/AssignedRequests.vue';
 
 const routes = [
   {
@@ -61,6 +62,13 @@ const routes = [
     path:'/professional',
     component: ProfessionalDashboard,
     meta: { requiresAuth: true, role: "professional" },
+    children: [
+      {
+        path: 'assigned-requests',
+        component: AssignedRequests,
+        meta: { requiresAuth: true, role: "professional" },
+      },
+    ]
   }
 ];
 
