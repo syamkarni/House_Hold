@@ -21,10 +21,12 @@ const routes = [
   {
     path: '/login',
     component: AuthLogin,
+    meta: {requiresGuest: true},
   },
   {
     path: '/register',
     component: AuthRegister,
+    meta: {requiresGuest: true},
   },
   {
     path:'/admin',
@@ -79,6 +81,7 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth;
+  const requiresGuest = to.meta.requiresGuest;
   // const userRole = localStorage.getItem('user_role');
   // const isAuthenticated = !!localStorage.getItem('access_token');
   const userRole = authState.userRole;
@@ -99,7 +102,21 @@ router.beforeEach((to, from, next) => {
     } else{
       next('/login');
     }
-  } else{
+  } else if(requiresGuest){
+    if(isAuthenticated){
+      if (userRole == 'admin'){
+        next('/admin');
+      } else if(userRole == 'customer'){
+        next('/customer');
+      } else if(userRole == 'professional'){
+        next('/professional');
+      }
+      else{
+        next('/login');
+      }
+    }
+  }
+  else{
     next();
   }
 });
