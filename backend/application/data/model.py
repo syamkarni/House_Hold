@@ -19,10 +19,9 @@ class User(db.Model):
     active = db.Column(db.Boolean, default=True)
     confirmed_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-    customer = db.relationship('Customer', backref='user', uselist=False)
-    service_professional = db.relationship('ServiceProfessional', backref='user', uselist=False)
+    customer = db.relationship('Customer', back_populates='user', uselist=False)
+    service_professional = db.relationship('ServiceProfessional', back_populates='user', uselist=False)
 
-    # Add methods for password hashing and verification
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
@@ -47,7 +46,9 @@ class Customer(db.Model):
     phone = db.Column(db.String(20))
     is_blocked = db.Column(db.Boolean, default=False)
 
-    service_requests = db.relationship('ServiceRequest', backref='customer')
+    user = db.relationship('User', back_populates='customer')
+    service_requests = db.relationship('ServiceRequest', back_populates='customer')
+    reviews = db.relationship('Review', back_populates='customer')
 
 class ServiceProfessional(db.Model):
     __tablename__ = 'service_professional'
@@ -61,7 +62,9 @@ class ServiceProfessional(db.Model):
     approved = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)
 
-    service_requests = db.relationship('ServiceRequest', backref='professional')
+    user = db.relationship('User', back_populates='service_professional')
+    service_requests = db.relationship('ServiceRequest', back_populates='professional')
+    reviews = db.relationship('Review', back_populates='professional')
 
 class Service(db.Model):
     __tablename__ = 'service'
@@ -71,7 +74,7 @@ class Service(db.Model):
     time_required = db.Column(db.Integer)
     description = db.Column(db.Text)
 
-    service_requests = db.relationship('ServiceRequest', backref='service')
+    service_requests = db.relationship('ServiceRequest', back_populates='service')
 
 class ServiceRequest(db.Model):
     __tablename__ = 'service_request'
@@ -81,10 +84,13 @@ class ServiceRequest(db.Model):
     professional_id = db.Column(db.Integer, db.ForeignKey('service_professional.id'), nullable=True)
     date_of_request = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     date_of_completion = db.Column(db.DateTime, nullable=True)
-    service_status = db.Column(db.String(50), default='requested')  # e.g., requested, assigned, closed
+    service_status = db.Column(db.String(50), default='requested')
     remarks = db.Column(db.Text)
 
-    reviews = db.relationship('Review', backref='service_request')
+    service = db.relationship('Service', back_populates='service_requests')
+    customer = db.relationship('Customer', back_populates='service_requests')
+    professional = db.relationship('ServiceProfessional', back_populates='service_requests')
+    reviews = db.relationship('Review', back_populates='service_request')
 
 class Review(db.Model):
     __tablename__ = 'review'
@@ -96,5 +102,6 @@ class Review(db.Model):
     comment = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
-    customer = db.relationship('Customer', backref='reviews')
-    professional = db.relationship('ServiceProfessional', backref='reviews')
+    service_request = db.relationship('ServiceRequest', back_populates='reviews')
+    customer = db.relationship('Customer', back_populates='reviews')
+    professional = db.relationship('ServiceProfessional', back_populates='reviews')

@@ -24,18 +24,35 @@ class ListAssignedServiceRequests(Resource):
                 return {'message': 'Professional profile not found'}, 404
 
             requests = ServiceRequest.query.filter_by(professional_id=professional.id).all()
-            request_list = [{
-                'id': r.id,
-                'service_id': r.service_id,
-                'customer_id': r.customer_id,
-                'date_of_request': r.date_of_request.isoformat(),
-                'service_status': r.service_status,
-                'remarks': r.remarks
-            } for r in requests]
+            request_list = []
+            for r in requests:
+                service_data = None
+                if r.service:
+                    service_data = {
+                        'id': r.service.id,
+                        'name': r.service.name,
+                        'description': r.service.description,
+                        'price': r.service.price,
+                        'time_required': r.service.time_required
+                    }
+
+                request_dict = {
+                    'id': r.id,
+                    'service_id': r.service_id,
+                    'service': service_data,
+                    'customer_id': r.customer_id,
+                    'date_of_request': r.date_of_request.isoformat(),
+                    'service_status': r.service_status,
+                    'remarks': r.remarks
+                }
+                request_list.append(request_dict)
 
             return {'requests': request_list}, 200
         except SQLAlchemyError as e:
-            return {'message': 'An error occurred while fetching service requests', 'error': str(e)}, 500
+            return {
+                'message': 'An error occurred while fetching service requests',
+                'error': str(e)
+            }, 500
 
 class AcceptServiceRequest(Resource):
     @jwt_required()
