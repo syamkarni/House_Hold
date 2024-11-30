@@ -55,6 +55,32 @@
     <div v-else>
       <p>No assigned service requests at the moment.</p>
     </div>
+
+    <h2>Service Request History</h2>
+    <div v-if="historyError" style="color: red;">{{ historyError }}</div>
+    <table v-if="historyRequests.length > 0">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>Date of Request</th>
+          <th>Date of Completion</th>
+          <th>Status</th>
+          <th>Customer Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="request in historyRequests" :key="request.id">
+          <td>{{ request.service.name }}</td>
+          <td>{{ request.date_of_request }}</td>
+          <td>{{ request.date_of_completion || 'N/A' }}</td>
+          <td>{{ request.service_status }}</td>
+          <td>{{ request.remarks }}</td>
+        </tr>
+      </tbody>
+    </table>
+    <div v-else>
+      <p>No historical service requests at the moment.</p>
+    </div>
   </div>
 </template>
 
@@ -67,12 +93,15 @@ export default {
     return {
       unassignedRequests: [],
       assignedRequests: [],
+      historyRequests: [],
       error: null,
+      historyError: null,
     };
   },
   created() {
     this.fetchUnassignedRequests();
     this.fetchAssignedRequests();
+    this.fetchServiceRequestHistory();
   },
   methods: {
     async fetchUnassignedRequests() {
@@ -101,6 +130,20 @@ export default {
       } catch (error) {
         this.error = 'Error fetching assigned requests.';
         console.error('Error fetching assigned requests:', error);
+      }
+    },
+    async fetchServiceRequestHistory() {
+      this.historyError = null;
+      try {
+        const response = await axios.get('/professional/service_request_history', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+          },
+        });
+        this.historyRequests = response.data.requests;
+      } catch (error) {
+        this.historyError = 'Error fetching service request history.';
+        console.error('Error fetching service request history:', error);
       }
     },
     async acceptRequest(requestId) {
@@ -133,6 +176,7 @@ export default {
         );
         this.fetchUnassignedRequests();
         this.fetchAssignedRequests();
+        this.fetchServiceRequestHistory();
       } catch (error) {
         console.error('Error rejecting request:', error);
       }
@@ -149,6 +193,7 @@ export default {
           }
         );
         this.fetchAssignedRequests();
+        this.fetchServiceRequestHistory();
       } catch (error) {
         console.error('Error marking request as completed:', error);
       }
