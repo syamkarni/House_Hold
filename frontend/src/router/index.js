@@ -13,6 +13,11 @@ import AdminReports from '@/views/Admin/AdminReports.vue';
 
 import AssignedRequests from '@/views/Professional/AssignedRequests.vue';
 
+import AvailableServices from '@/views/Customer/AvailableServices.vue';
+import RequestService from '@/views/Customer/RequestService.vue';
+import CustomerServiceRequests from '@/views/Customer/CustomerServiceRequests.vue';
+import ProvideReview from '@/views/Customer/ProvideReview.vue';
+
 const routes = [
   {
     path: '/',
@@ -56,9 +61,33 @@ const routes = [
     ]
   },
   {
-    path:'/customer',
+    path: '/customer',
     component: CustomerDashboard,
-    meta: { requiresAuth: true, role: "customer" },
+    meta: { requiresAuth: true, role: 'customer' },
+    children: [
+      {
+        path: 'services',
+        name: 'AvailableServices',
+        component: AvailableServices,
+      },
+      {
+        path: 'services/:serviceId/request',
+        name: 'RequestService',
+        component: RequestService,
+        props: true,
+      },
+      {
+        path: 'service_requests',
+        name: 'CustomerServiceRequests',
+        component: CustomerServiceRequests,
+      },
+      {
+        path: 'service_requests/:requestId/review',
+        name: 'ProvideReview',
+        component: ProvideReview,
+        props: true,
+      },
+    ],
   },
   {
     path:'/professional',
