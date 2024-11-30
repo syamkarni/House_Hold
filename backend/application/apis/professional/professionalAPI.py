@@ -53,6 +53,49 @@ class ListAssignedServiceRequests(Resource):
                 'message': 'An error occurred while fetching service requests',
                 'error': str(e)
             }, 500
+        
+class ListUnassignedServiceRequests(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+
+            if 'professional' not in roles:
+                return {'message': 'Unauthorized: Only professionals can access this endpoint'}, 403
+
+            # Fetch service requests that are in 'requested' status and not assigned to any professional
+            requests = ServiceRequest.query.filter_by(service_status='requested', professional_id=None).all()
+            request_list = []
+            for r in requests:
+                service_data = None
+                if r.service:
+                    service_data = {
+                        'id': r.service.id,
+                        'name': r.service.name,
+                        'description': r.service.description,
+                        'price': r.service.price,
+                        'time_required': r.service.time_required
+                    }
+
+                request_dict = {
+                    'id': r.id,
+                    'service_id': r.service_id,
+                    'service': service_data,
+                    'customer_id': r.customer_id,
+                    'date_of_request': r.date_of_request.isoformat(),
+                    'service_status': r.service_status,
+                    'remarks': r.remarks
+                }
+                request_list.append(request_dict)
+
+            return {'requests': request_list}, 200
+        except SQLAlchemyError as e:
+            return {
+                'message': 'An error occurred while fetching unassigned service requests',
+                'error': str(e)
+            }, 500
+
 
 class AcceptServiceRequest(Resource):
     @jwt_required()
@@ -142,3 +185,4 @@ professional_api.add_resource(ListAssignedServiceRequests, '/professional/servic
 professional_api.add_resource(AcceptServiceRequest, '/professional/service_request/<int:request_id>/accept')
 professional_api.add_resource(RejectServiceRequest, '/professional/service_request/<int:request_id>/reject')
 professional_api.add_resource(CompleteServiceRequest, '/professional/service_request/<int:request_id>/complete')
+professional_api.add_resource(ListUnassignedServiceRequests, '/professional/unassigned_service_requests')
