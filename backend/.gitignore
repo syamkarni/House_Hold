@@ -5,3 +5,4 @@ test_api.py
 create_users.py
 /migrations
 test_hash.py
+insert_data.py
