@@ -120,7 +120,7 @@ router.beforeEach((to, from, next) => {
   const requiresGuest = to.meta.requiresGuest;
   const userRole = authState.userRole;
   const isAuthenticated = authState.isAuthenticated;
-  const profileComplete = !!authState.profileComplete;
+  const profileComplete = authState.profileComplete;
 
   console.log('Navigating to:', to.path);
   console.log('Requires Auth:', requiresAuth);
