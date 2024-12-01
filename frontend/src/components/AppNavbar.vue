@@ -16,6 +16,9 @@
       <li v-if="authState.isAuthenticated && authState.userRole === 'customer'">
         <router-link to="/customer">Customer Dashboard</router-link>
       </li>
+      <li v-if="authState.isAuthenticated && authState.userRole === 'customer'">
+        <router-link to="/customer/profile">Profile</router-link>
+      </li>
       <li v-if="authState.isAuthenticated && authState.userRole === 'professional'">
         <router-link to="/professional">Professional Dashboard</router-link>
       </li>
