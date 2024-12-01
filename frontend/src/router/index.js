@@ -27,39 +27,39 @@ const routes = [
   {
     path: '/login',
     component: AuthLogin,
-    meta: {requiresGuest: true},
+    meta: { requiresGuest: true },
   },
   {
     path: '/register',
     component: AuthRegister,
-    meta: {requiresGuest: true},
+    meta: { requiresGuest: true },
   },
   {
-    path:'/admin',
+    path: '/admin',
     component: AdminDashboard,
-    meta: { requiresAuth: true, role: "admin" },
+    meta: { requiresAuth: true, role: 'admin' },
     children: [
       {
-        path:'manage-users',
+        path: 'manage-users',
         component: ManageUser,
-        meta: { requiresAuth: true, role: "admin" },
+        meta: { requiresAuth: true, role: 'admin' },
       },
       {
-        path:'manage-services',
+        path: 'manage-services',
         component: ManageServices,
-        meta: { requiresAuth: true, role: "admin" },
+        meta: { requiresAuth: true, role: 'admin' },
       },
       {
         path: 'approve-professionals',
         component: ApproveProfessionals,
-        meta: { requiresAuth: true, role: "admin" },
+        meta: { requiresAuth: true, role: 'admin' },
       },
       {
         path: 'admin-reports',
         component: AdminReports,
-        meta: { requiresAuth: true, role: "admin" },
-      }
-    ]
+        meta: { requiresAuth: true, role: 'admin' },
+      },
+    ],
   },
   {
     path: '/customer',
@@ -99,15 +99,15 @@ const routes = [
   {
     path:'/professional',
     component: ProfessionalDashboard,
-    meta: { requiresAuth: true, role: "professional" },
+    meta: { requiresAuth: true, role: 'professional' },
     children: [
       {
         path: 'assigned-requests',
         component: AssignedRequests,
-        meta: { requiresAuth: true, role: "professional" },
+        meta: { requiresAuth: true, role: 'professional' },
       },
-    ]
-  }
+    ],
+  },
 ];
 
 const router = createRouter({
@@ -118,17 +118,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.meta.requiresAuth;
   const requiresGuest = to.meta.requiresGuest;
-  // const userRole = localStorage.getItem('user_role');
-  // const isAuthenticated = !!localStorage.getItem('access_token');
   const userRole = authState.userRole;
   const isAuthenticated = authState.isAuthenticated;
-  const profileComplete = authState.profileComplete;
-  //debugging
-  console.log("Navigating to:", to.path);
-  console.log("Requires Auth:", requiresAuth);
-  console.log("User Role:", userRole);
-  console.log("Is Authenticated:", isAuthenticated);
-  console.log("Profile Complete:", profileComplete);
+  const profileComplete = !!authState.profileComplete;
+
+  console.log('Navigating to:', to.path);
+  console.log('Requires Auth:', requiresAuth);
+  console.log('User Role:', userRole);
+  console.log('Is Authenticated:', isAuthenticated);
+  console.log('Profile Complete:', profileComplete);
 
   if (requiresAuth) {
     if (isAuthenticated) {
@@ -136,19 +134,16 @@ router.beforeEach((to, from, next) => {
         if (userRole === 'customer' && !profileComplete && to.path !== '/customer/profile') {
           next('/customer/profile');
         } else {
-          next(); 
+          next();
         }
       } else {
-        next('/login'); 
+        next('/login');
       }
     } else {
-      next('/login'); 
+      next('/login');
     }
-  }
-
-  else if (requiresGuest) {
+  } else if (requiresGuest) {
     if (isAuthenticated) {
-
       if (userRole === 'admin') {
         next('/admin');
       } else if (userRole === 'customer') {
@@ -160,18 +155,14 @@ router.beforeEach((to, from, next) => {
       } else if (userRole === 'professional') {
         next('/professional');
       } else {
-        next('/login'); 
+        next('/login');
       }
     } else {
-      next(); 
+      next();
     }
-  }
-
-  else {
-    next(); 
+  } else {
+    next();
   }
 });
-
-
 
 export default router;
