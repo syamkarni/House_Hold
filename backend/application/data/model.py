@@ -41,14 +41,17 @@ class Customer(db.Model):
     __tablename__ = 'customer'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
-    name = db.Column(db.String(255), nullable=False)
-    address = db.Column(db.String(255))
-    phone = db.Column(db.String(20))
+    name = db.Column(db.String(255), nullable=True)
+    address = db.Column(db.String(255), nullable=True)
+    phone = db.Column(db.String(20), nullable=True)
     is_blocked = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', back_populates='customer')
     service_requests = db.relationship('ServiceRequest', back_populates='customer')
     reviews = db.relationship('Review', back_populates='customer')
+
+    def is_profile_complete(self):
+        return bool(self.name and self.phone and self.address)
 
 class ServiceProfessional(db.Model):
     __tablename__ = 'service_professional'

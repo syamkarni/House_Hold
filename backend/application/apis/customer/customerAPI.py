@@ -237,9 +237,60 @@ class ProvideReview(Resource):
                 'error': str(e)
             }, 500
 
+class CustomerProfileAPI(Resource):
+    @jwt_required()
+    def get(self):
+        """Retrieve the customer's current profile."""
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+        customer = Customer.query.filter_by(user_id=user_id).first()
+
+        if not customer:
+            return {'message': 'Customer profile not found'}, 404
+
+        profile = {
+            'name': customer.name,
+            'phone': customer.phone,
+            'address': customer.address
+        }
+        return {'profile': profile}, 200
+
+    @jwt_required()
+    def put(self):
+        """Update the customer's profile."""
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+        data = request.get_json()
+        customer = Customer.query.filter_by(user_id=user_id).first()
+
+        if not customer:
+            return {'message': 'Customer profile not found'}, 404
+
+
+        name = data.get('name')
+        phone = data.get('phone')
+        address = data.get('address')
+
+        if not all([name, phone, address]):
+            return {'message': 'Name, phone, and address are required'}, 400
+
+
+        customer.name = name
+        customer.phone = phone
+        customer.address = address
+
+        try:
+            db.session.commit()
+            return {'message': 'Profile updated successfully'}, 200
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'message': 'An error occurred while updating profile', 'error': str(e)}, 500
+
+
 customer_api.add_resource(ListAvailableServices, '/customer/services')
 customer_api.add_resource(CustomerServiceRequests, '/customer/service_requests')
 customer_api.add_resource(CreateServiceRequest, '/customer/service_request')
 customer_api.add_resource(EditServiceRequest, '/customer/service_request/<int:request_id>')
 customer_api.add_resource(CancelServiceRequest, '/customer/service_request/<int:request_id>/cancel')
 customer_api.add_resource(ProvideReview, '/customer/service_request/<int:request_id>/review')
+customer_api.add_resource(CustomerProfileAPI, '/customer/profile')

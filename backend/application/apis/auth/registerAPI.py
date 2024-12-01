@@ -1,7 +1,7 @@
 from flask import request, jsonify
 import os
 from flask_restful import Resource, Api
-from application.data.model import db, User, Role, UserRole
+from application.data.model import db, User, Role, UserRole, Customer, ServiceProfessional
 from . import auth_bp
 
 auth_api = Api(auth_bp)
@@ -20,20 +20,51 @@ class RegisterAPI(Resource):
         if user:
             return {'status': 'failed', 'message': 'This email is already registered'}, 409
 
+
         new_user = User(u_mail=u_mail, fs_uniquifier=os.urandom(16).hex())
         new_user.set_password(password)
         db.session.add(new_user)
-        db.session.flush()  # Ensure new_user.user_id is available
+        db.session.flush()  
+
 
         role = Role.query.filter_by(name=role_name).first()
         if not role:
             db.session.rollback()
             return {'status': 'failed', 'message': 'Role not found'}, 404
 
-        # Assign the role to the user
         user_role = UserRole(user_id=new_user.user_id, role_id=role.id)
         db.session.add(user_role)
-        db.session.commit()
+
+        if role_name == 'customer':
+
+            new_customer = Customer(
+                user_id=new_user.user_id,
+                name=data.get('name', ''),  # You may prompt for name, phone, address in registration
+                phone=data.get('phone', ''),
+                address=data.get('address', ''),
+                is_blocked=False
+            )
+            db.session.add(new_customer)
+        elif role_name == 'professional':
+            # Create a Service Professional profile
+            new_professional = ServiceProfessional(
+                user_id=new_user.user_id,
+                name=data.get('name', ''),
+                description=data.get('description', ''),
+                service_type=data.get('service_type', ''),
+                experience=data.get('experience', 0),
+                approved=False,  # You may have an admin approve professionals
+                date_created=datetime.datetime.utcnow(),
+                is_blocked=False
+            )
+            db.session.add(new_professional)
+
+        # Commit all changes
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            return {'status': 'failed', 'message': 'An error occurred during registration', 'error': str(e)}, 500
 
         return {'status': 'success', 'message': 'User registered successfully'}, 201
 

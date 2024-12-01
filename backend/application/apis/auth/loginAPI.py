@@ -4,7 +4,7 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity
 )
-from application.data.model import db, User, UserRole, Role
+from application.data.model import db, User, UserRole, Role, Customer  
 from . import auth_bp
 
 auth_api = Api(auth_bp)
@@ -26,9 +26,17 @@ class LoginAPI(Resource):
             return {'status': 'failed', 'message': 'Wrong password'}, 401
 
         roles = user.get_roles()
+        identity = {'user_id': user.user_id, 'roles': roles}
 
-        access_token = create_access_token(identity={'user_id': user.user_id, 'roles': roles})
-        refresh_token = create_refresh_token(identity={'user_id': user.user_id, 'roles': roles})
+
+        if 'customer' in roles:
+            customer = Customer.query.filter_by(user_id=user.user_id).first()
+            if customer:
+                profile_complete = customer.is_profile_complete()
+                identity['profile_complete'] = profile_complete
+
+        access_token = create_access_token(identity=identity)
+        refresh_token = create_refresh_token(identity=identity)
 
         return {
             'status': 'success',
@@ -38,6 +46,9 @@ class LoginAPI(Resource):
             'u_mail': user.u_mail,
             'roles': roles
         }, 200
+
+
+
 
 class RefreshTokenAPI(Resource):
     @jwt_required(refresh=True)

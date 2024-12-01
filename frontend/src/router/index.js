@@ -17,6 +17,7 @@ import AvailableServices from '@/views/Customer/AvailableServices.vue';
 import RequestService from '@/views/Customer/RequestService.vue';
 import CustomerServiceRequests from '@/views/Customer/CustomerServiceRequests.vue';
 import ProvideReview from '@/views/Customer/ProvideReview.vue';
+import CustomerProfile from '@/views/Customer/CustomerProfile.vue';
 
 const routes = [
   {
@@ -90,6 +91,12 @@ const routes = [
     ],
   },
   {
+    path: '/customer/profile',
+    name: 'CustomerProfile',
+    component: CustomerProfile,
+    meta: { requiresAuth: true, role: 'customer' },
+  },
+  {
     path:'/professional',
     component: ProfessionalDashboard,
     meta: { requiresAuth: true, role: "professional" },
@@ -115,43 +122,56 @@ router.beforeEach((to, from, next) => {
   // const isAuthenticated = !!localStorage.getItem('access_token');
   const userRole = authState.userRole;
   const isAuthenticated = authState.isAuthenticated;
+  const profileComplete = authState.profileComplete;
   //debugging
   console.log("Navigating to:", to.path);
   console.log("Requires Auth:", requiresAuth);
   console.log("User Role:", userRole);
   console.log("Is Authenticated:", isAuthenticated);
+  console.log("Profile Complete:", profileComplete);
 
-  if(requiresAuth){
-    if(isAuthenticated){
-      if(to.meta.role==userRole){
-        next();
-      } else{
-        next('/login');
+  if (requiresAuth) {
+    if (isAuthenticated) {
+      if (to.meta.role === userRole) {
+        if (userRole === 'customer' && !profileComplete && to.path !== '/customer/profile') {
+          next('/customer/profile');
+        } else {
+          next(); 
+        }
+      } else {
+        next('/login'); 
       }
-    } else{
-      next('/login');
-    }
-  } else if(requiresGuest){
-    if(isAuthenticated){
-      if (userRole == 'admin'){
-        next('/admin');
-      } else if(userRole == 'customer'){
-        next('/customer');
-      } else if(userRole == 'professional'){
-        next('/professional');
-      }
-      else{
-        next('/login');
-      }
-    }
-    else{
-      next();
+    } else {
+      next('/login'); 
     }
   }
-  else{
-    next();
+
+  else if (requiresGuest) {
+    if (isAuthenticated) {
+
+      if (userRole === 'admin') {
+        next('/admin');
+      } else if (userRole === 'customer') {
+        if (!profileComplete) {
+          next('/customer/profile');
+        } else {
+          next('/customer');
+        }
+      } else if (userRole === 'professional') {
+        next('/professional');
+      } else {
+        next('/login'); 
+      }
+    } else {
+      next(); 
+    }
+  }
+
+  else {
+    next(); 
   }
 });
+
 
 
 export default router;
