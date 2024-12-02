@@ -69,6 +69,9 @@ class ServiceProfessional(db.Model):
     service_requests = db.relationship('ServiceRequest', back_populates='professional')
     reviews = db.relationship('Review', back_populates='professional')
 
+    def is_profile_complete(self):
+        return bool(self.name and self.description and self.service_type and self.experience)
+
 class Service(db.Model):
     __tablename__ = 'service'
     id = db.Column(db.Integer, primary_key=True)

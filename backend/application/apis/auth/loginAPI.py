@@ -4,7 +4,7 @@ from flask_jwt_extended import (
     create_access_token, create_refresh_token,
     jwt_required, get_jwt_identity
 )
-from application.data.model import db, User, UserRole, Role, Customer  
+from application.data.model import db, User, UserRole, Role, Customer, ServiceProfessional
 from . import auth_bp
 
 auth_api = Api(auth_bp)
@@ -28,11 +28,30 @@ class LoginAPI(Resource):
         roles = user.get_roles()
         identity = {'user_id': user.user_id, 'roles': roles}
 
+        is_blocked = False
+        if 'customer' in roles:
+            customer = Customer.query.filter_by(user_id=user.user_id).first()
+            if customer:
+                if customer.is_blocked:
+                    is_blocked = True
+        elif 'professional' in roles:
+            professional = ServiceProfessional.query.filter_by(user_id=user.user_id).first()
+            if professional:
+                if professional.is_blocked:
+                    is_blocked = True
+
+        if is_blocked:
+            return {'status': 'failed', 'message': 'Your account has been blocked. Please contact support.'}, 403
 
         if 'customer' in roles:
             customer = Customer.query.filter_by(user_id=user.user_id).first()
             if customer:
                 profile_complete = customer.is_profile_complete()
+                identity['profile_complete'] = profile_complete
+        elif 'professional' in roles:
+            professional = ServiceProfessional.query.filter_by(user_id=user.user_id).first()
+            if professional:
+                profile_complete = professional.is_profile_complete()
                 identity['profile_complete'] = profile_complete
 
         access_token = create_access_token(identity=identity)
