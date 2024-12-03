@@ -235,6 +235,58 @@ class CompleteServiceRequest(Resource):
             db.session.rollback()
             return {'message': 'An error occurred while completing service request', 'error': str(e)}, 500
 
+class ProfessionalProfileAPI(Resource):
+    @jwt_required()
+    def get(self):
+        """Retrieve the professional's current profile."""
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+        professional = ServiceProfessional.query.filter_by(user_id=user_id).first()
+
+        if not professional:
+            return {'message': 'Professional profile not found'}, 404
+
+        profile = {
+            'name': professional.name,
+            'service_type': professional.service_type,
+            'experience': professional.experience,
+            'description': professional.description,
+            'approved': professional.approved 
+        }
+        return {'profile': profile}, 200
+
+    @jwt_required()
+    def put(self):
+        """Update the professional's profile."""
+        identity = get_jwt_identity()
+        user_id = identity['user_id']
+        data = request.get_json()
+        professional = ServiceProfessional.query.filter_by(user_id=user_id).first()
+
+        if not professional:
+            return {'message': 'Professional profile not found'}, 404
+
+        name = data.get('name')
+        service_type = data.get('service_type')
+        experience = data.get('experience')
+        description = data.get('description')
+
+        if not all([name, service_type, experience, description]):
+            return {'message': 'Name, service type, experience, and description are required'}, 400
+
+
+        professional.name = name
+        professional.service_type = service_type
+        professional.experience = experience
+        professional.description = description
+        professional.approved = False 
+
+        try:
+            db.session.commit()
+            return {'message': 'Profile updated successfully. Awaiting admin approval.'}, 200
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'message': 'An error occurred while updating profile', 'error': str(e)}, 500
 
 professional_api.add_resource(ListAssignedServiceRequests, '/professional/service_requests')
 professional_api.add_resource(ListUnassignedServiceRequests, '/professional/unassigned_service_requests')
@@ -242,3 +294,4 @@ professional_api.add_resource(ListServiceRequestHistory, '/professional/service_
 professional_api.add_resource(AcceptServiceRequest, '/professional/service_request/<int:request_id>/accept')
 professional_api.add_resource(RejectServiceRequest, '/professional/service_request/<int:request_id>/reject')
 professional_api.add_resource(CompleteServiceRequest, '/professional/service_request/<int:request_id>/complete')
+professional_api.add_resource(ProfessionalProfileAPI, '/professional/profile')

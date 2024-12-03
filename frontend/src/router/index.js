@@ -18,6 +18,8 @@ import RequestService from '@/views/Customer/RequestService.vue';
 import CustomerServiceRequests from '@/views/Customer/CustomerServiceRequests.vue';
 import ProvideReview from '@/views/Customer/ProvideReview.vue';
 import CustomerProfile from '@/views/Customer/CustomerProfile.vue';
+import ProfessionalProfile from '@/views/Professional/ProfessionalProfile.vue';
+import ProfessionalPendingApproval from '@/views/Professional/ProfessionalPendingApproval.vue';
 
 const routes = [
   {
@@ -97,7 +99,19 @@ const routes = [
     meta: { requiresAuth: true, role: 'customer' },
   },
   {
-    path:'/professional',
+    path: '/professional/profile',
+    name: 'ProfessionalProfile',
+    component: ProfessionalProfile,
+    meta: { requiresAuth: true, role: 'professional' },
+  },
+  {
+    path: '/professional/pending-approval',
+    name: 'ProfessionalPendingApproval',
+    component: ProfessionalPendingApproval,
+    meta: { requiresAuth: true, role: 'professional' },
+  },
+  {
+    path: '/professional',
     component: ProfessionalDashboard,
     meta: { requiresAuth: true, role: 'professional' },
     children: [
@@ -132,36 +146,42 @@ router.beforeEach((to, from, next) => {
     if (isAuthenticated) {
       if (to.meta.role === userRole) {
         if (userRole === 'customer' && !profileComplete && to.path !== '/customer/profile') {
-          next('/customer/profile');
-        } else {
-          next();
+          return next('/customer/profile');
         }
+        if (userRole === 'professional' && !profileComplete && to.path !== '/professional/profile') {
+          return next('/professional/profile');
+        }
+        return next();
       } else {
-        next('/login');
+        return next('/login');
       }
     } else {
-      next('/login');
+      return next('/login');
     }
   } else if (requiresGuest) {
     if (isAuthenticated) {
       if (userRole === 'admin') {
-        next('/admin');
+        return next('/admin');
       } else if (userRole === 'customer') {
         if (!profileComplete) {
-          next('/customer/profile');
+          return next('/customer/profile');
         } else {
-          next('/customer');
+          return next('/customer');
         }
       } else if (userRole === 'professional') {
-        next('/professional');
+        if (!profileComplete) {
+          return next('/professional/profile');
+        } else {
+          return next('/professional');
+        }
       } else {
-        next('/login');
+        return next('/login');
       }
     } else {
-      next();
+      return next();
     }
   } else {
-    next();
+    return next();
   }
 });
 
