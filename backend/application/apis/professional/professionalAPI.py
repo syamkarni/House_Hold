@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from application.data.model import ServiceRequest, ServiceProfessional, db
+from application.data.model import ServiceRequest, ServiceProfessional, db, Service
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
@@ -292,11 +292,14 @@ class GetAvailableServices(Resource):
     @jwt_required()
     def get(self):
         try:
-            services = Service.query.all()  
+            services = Service.query.all()
+            print("Services fetched:", services)  
             service_list = [{'id': service.id, 'name': service.name} for service in services]
             return {'services': service_list}, 200
         except SQLAlchemyError as e:
+            print("Error fetching services:", e)  
             return {'message': 'An error occurred while fetching services', 'error': str(e)}, 500
+
 
 
 professional_api.add_resource(ListAssignedServiceRequests, '/professional/service_requests')
@@ -306,4 +309,4 @@ professional_api.add_resource(AcceptServiceRequest, '/professional/service_reque
 professional_api.add_resource(RejectServiceRequest, '/professional/service_request/<int:request_id>/reject')
 professional_api.add_resource(CompleteServiceRequest, '/professional/service_request/<int:request_id>/complete')
 professional_api.add_resource(ProfessionalProfileAPI, '/professional/profile')
-professional_api.add_resource(GetAvailableServices, '/services')
+professional_api.add_resource(GetAvailableServices, '/professional/services')
