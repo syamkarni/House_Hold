@@ -8,7 +8,11 @@
       </div>
       <div>
         <label for="service_type">Service Type:</label>
-        <input type="text" id="service_type" v-model="service_type" required />
+        <select id="service_type" v-model="service_type" required>
+          <option v-for="service in services" :key="service.id" :value="service.name">
+            {{ service.name }}
+          </option>
+        </select>
       </div>
       <div>
         <label for="experience">Experience (years):</label>
@@ -18,9 +22,7 @@
         <label for="description">Description:</label>
         <textarea id="description" v-model="description" required></textarea>
       </div>
-      <button type="submit" :disabled="isLoading">
-        {{ isLoading ? 'Saving...' : 'Save Profile' }}
-      </button>
+      <button type="submit">Save Profile</button>
     </form>
     <p v-if="message" :class="{ success: success, error: !success }">{{ message }}</p>
   </div>
@@ -38,13 +40,14 @@ export default {
       service_type: '',
       experience: '',
       description: '',
+      services: [], // To hold available services
       message: '',
       success: false,
-      isLoading: false, // New loading state
     };
   },
   created() {
     this.fetchProfile();
+    this.fetchServices(); // Fetch available services on component load
   },
   methods: {
     async fetchProfile() {
@@ -59,14 +62,19 @@ export default {
         this.description = profile.description || '';
       } catch (error) {
         console.error('Error fetching profile:', error);
-        this.message = 'Failed to load profile data. Please try again later.';
-        this.success = false;
+      }
+    },
+    async fetchServices() {
+      try {
+        const response = await axios.get('/professional/services', {
+          headers: { Authorization: `Bearer ${localStorage.getItem('access_token')}` },
+        });
+        this.services = response.data.services;
+      } catch (error) {
+        console.error('Error fetching services:', error);
       }
     },
     async updateProfile() {
-      if (!this.validateFields()) return;
-
-      this.isLoading = true; 
       try {
         await axios.put(
           '/professional/profile',
@@ -89,21 +97,9 @@ export default {
         this.$router.push('/professional');
       } catch (error) {
         console.error('Error updating profile:', error);
-        const errorMessage =
-          error.response?.data?.message || 'Failed to update profile. Please try again.';
-        this.message = errorMessage;
+        this.message = 'Failed to update profile.';
         this.success = false;
-      } finally {
-        this.isLoading = false; 
       }
-    },
-    validateFields() {
-      if (!this.name || !this.service_type || this.experience <= 0 || !this.description) {
-        this.message = 'Please fill out all fields correctly.';
-        this.success = false;
-        return false;
-      }
-      return true;
     },
   },
 };
@@ -115,9 +111,5 @@ export default {
 }
 .error {
   color: red;
-}
-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
 }
 </style>

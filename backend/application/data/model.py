@@ -60,12 +60,13 @@ class ServiceProfessional(db.Model):
     name = db.Column(db.String(255), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     description = db.Column(db.Text)
-    service_type = db.Column(db.String(255))
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
     experience = db.Column(db.Integer)
     approved = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)
 
     user = db.relationship('User', back_populates='service_professional')
+    service = db.relationship('Service', back_populates='professionals') 
     service_requests = db.relationship('ServiceRequest', back_populates='professional')
     reviews = db.relationship('Review', back_populates='professional')
 
@@ -80,6 +81,7 @@ class Service(db.Model):
     time_required = db.Column(db.Integer)
     description = db.Column(db.Text)
 
+    professionals = db.relationship('ServiceProfessional', back_populates='service')  
     service_requests = db.relationship('ServiceRequest', back_populates='service')
 
 class ServiceRequest(db.Model):

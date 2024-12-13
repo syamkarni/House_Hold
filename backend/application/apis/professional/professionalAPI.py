@@ -287,6 +287,17 @@ class ProfessionalProfileAPI(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'message': 'An error occurred while updating profile', 'error': str(e)}, 500
+        
+class GetAvailableServices(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            services = Service.query.all()  
+            service_list = [{'id': service.id, 'name': service.name} for service in services]
+            return {'services': service_list}, 200
+        except SQLAlchemyError as e:
+            return {'message': 'An error occurred while fetching services', 'error': str(e)}, 500
+
 
 professional_api.add_resource(ListAssignedServiceRequests, '/professional/service_requests')
 professional_api.add_resource(ListUnassignedServiceRequests, '/professional/unassigned_service_requests')
@@ -295,3 +306,4 @@ professional_api.add_resource(AcceptServiceRequest, '/professional/service_reque
 professional_api.add_resource(RejectServiceRequest, '/professional/service_request/<int:request_id>/reject')
 professional_api.add_resource(CompleteServiceRequest, '/professional/service_request/<int:request_id>/complete')
 professional_api.add_resource(ProfessionalProfileAPI, '/professional/profile')
+professional_api.add_resource(GetAvailableServices, '/services')
