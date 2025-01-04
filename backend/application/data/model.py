@@ -60,7 +60,7 @@ class ServiceProfessional(db.Model):
     name = db.Column(db.String(255), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     description = db.Column(db.Text)
-    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
     experience = db.Column(db.Integer)
     approved = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)
@@ -71,7 +71,7 @@ class ServiceProfessional(db.Model):
     reviews = db.relationship('Review', back_populates='professional')
 
     def is_profile_complete(self):
-        return bool(self.name and self.description and self.service_type and self.experience)
+        return bool(self.name and self.description and self.service_id and self.experience)
 
 class Service(db.Model):
     __tablename__ = 'service'

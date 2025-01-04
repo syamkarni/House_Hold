@@ -7,16 +7,17 @@
         <input type="text" id="name" v-model="name" required />
       </div>
       <div>
-        <label for="service_type">Service Type:</label>
-        <select id="service_type" v-model="service_type" required>
-          <option v-for="service in services" :key="service.id" :value="service.name">
+        <label for="service_id">Service:</label>
+        <select id="service_id" v-model="service_id" required>
+          <option disabled value="">Please select a service</option>
+          <option v-for="service in services" :key="service.id" :value="service.id">
             {{ service.name }}
           </option>
         </select>
       </div>
       <div>
         <label for="experience">Experience (years):</label>
-        <input type="number" id="experience" v-model="experience" required />
+        <input type="number" id="experience" v-model="experience" min="0" required />
       </div>
       <div>
         <label for="description">Description:</label>
@@ -37,17 +38,17 @@ export default {
   data() {
     return {
       name: '',
-      service_type: '',
+      service_id: '',  
       experience: '',
       description: '',
-      services: [], // To hold available services
+      services: [], 
       message: '',
       success: false,
     };
   },
   created() {
     this.fetchProfile();
-    this.fetchServices(); // Fetch available services on component load
+    this.fetchServices(); 
   },
   methods: {
     async fetchProfile() {
@@ -57,7 +58,7 @@ export default {
         });
         const profile = response.data.profile;
         this.name = profile.name || '';
-        this.service_type = profile.service_type || '';
+        this.service_id = profile.service_id || ''; 
         this.experience = profile.experience || '';
         this.description = profile.description || '';
       } catch (error) {
@@ -80,7 +81,7 @@ export default {
           '/professional/profile',
           {
             name: this.name,
-            service_type: this.service_type,
+            service_id: this.service_id,  
             experience: this.experience,
             description: this.description,
           },
