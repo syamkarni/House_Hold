@@ -245,13 +245,15 @@ class ProfessionalProfileAPI(Resource):
 
         if not professional:
             return {'message': 'Professional profile not found'}, 404
+        service = Service.query.get(professional.service_id)
 
         profile = {
             'name': professional.name,
-            'service_type': professional.service_type,
+            'service_id': professional.service_id,
+            'service_name': service.name if service else None,
             'experience': professional.experience,
             'description': professional.description,
-            'approved': professional.approved 
+            'approved': professional.approved
         }
         return {'profile': profile}, 200
 
@@ -267,19 +269,19 @@ class ProfessionalProfileAPI(Resource):
             return {'message': 'Professional profile not found'}, 404
 
         name = data.get('name')
-        service_type = data.get('service_type')
+        service_id = data.get('service_id')  # Updated to handle service_id
         experience = data.get('experience')
         description = data.get('description')
 
-        if not all([name, service_type, experience, description]):
-            return {'message': 'Name, service type, experience, and description are required'}, 400
-
+        if not all([name, service_id, experience, description]):
+            return {'message': 'Name, service ID, experience, and description are required'}, 400
 
         professional.name = name
-        professional.service_type = service_type
+        professional.service_id = service_id  # Updated to use service_id
         professional.experience = experience
         professional.description = description
-        professional.approved = False 
+        professional.approved = False
+        
 
         try:
             db.session.commit()
