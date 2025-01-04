@@ -7,3 +7,4 @@ create_users.py
 test_hash.py
 insert_data.py
 db_data.py
+register_api.log
