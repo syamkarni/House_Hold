@@ -60,7 +60,8 @@ class CustomerServiceRequests(Resource):
                     professional_data = {
                         'id': r.professional.id,
                         'name': r.professional.name,
-                        'service_type': r.professional.service_type,
+                        # 'service_type': r.professional.service_type,
+                        'service_name': r.professional.service.name if r.professional.service else None,
                         'experience': r.professional.experience,
                         'description': r.professional.description
                     }

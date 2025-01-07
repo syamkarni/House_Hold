@@ -189,7 +189,7 @@ class PendingProfessionals(Resource):
                 {
                     "id": professional.id,
                     "name": professional.name,
-                    "service_type": professional.service_type,
+                    "service_type": professional.service.name if professional.service else None,
                     "experience": professional.experience,
                     "description": professional.description
                 }

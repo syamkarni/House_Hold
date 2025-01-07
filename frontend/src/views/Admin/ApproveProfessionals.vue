@@ -14,7 +14,8 @@
         <tbody>
           <tr v-for="professional in professionals" :key="professional.id">
             <td>{{ professional.name }}</td>
-            <td>{{ professional.service_type }}</td>
+
+            <td>{{ professional.service_name }}</td> 
             <td>{{ professional.experience }}</td>
             <td>{{ professional.description }}</td>
             <td>

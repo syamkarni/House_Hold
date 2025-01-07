@@ -18,7 +18,8 @@
             <td>{{ request.service.name }}</td>
             <td>
               <div v-if="request.professional">
-                {{ request.professional.name }} ({{ request.professional.service_type }})
+                <!-- {{ request.professional.name }} ({{ request.professional.service_type }}) -->
+                {{ request.professional.name }} ({{ request.professional.service_name }}) <!-- temporary fix(dosen't work though, need to replace it by serivce_id) -->
               </div>
               <div v-else>
                 Not Assigned
