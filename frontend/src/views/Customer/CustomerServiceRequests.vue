@@ -94,7 +94,7 @@
       async cancelRequest(requestId) {
         try {
           await axios.put(
-            `/customer/service_requests/${requestId}/cancel`,
+            `/customer/service_request/${requestId}/cancel`,
             {},
             {
               headers: {
