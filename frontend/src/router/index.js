@@ -73,8 +73,14 @@ const routes = [
         name: 'AvailableServices',
         component: AvailableServices,
       },
+      // {
+      //   path: 'services/:serviceId/request',
+      //   name: 'RequestService',
+      //   component: RequestService,
+      //   props: true,
+      // },
       {
-        path: 'services/:serviceId/request',
+        path: '/customer/request-service/:serviceId/:packageId?',
         name: 'RequestService',
         component: RequestService,
         props: true,

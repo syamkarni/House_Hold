@@ -83,6 +83,20 @@ class Service(db.Model):
 
     professionals = db.relationship('ServiceProfessional', back_populates='service')  
     service_requests = db.relationship('ServiceRequest', back_populates='service')
+    packages = db.relationship('Package', back_populates='service', lazy=True)
+
+
+class Package(db.Model):
+    __tablename__ = 'package'
+    id = db.Column(db.Integer, primary_key=True)
+    service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.Text)
+    price = db.Column(db.Float, nullable=False)
+    time_required = db.Column(db.Integer)  
+
+    service = db.relationship('Service', back_populates='packages')
+
 
 class ServiceRequest(db.Model):
     __tablename__ = 'service_request'

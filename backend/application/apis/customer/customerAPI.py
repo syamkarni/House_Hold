@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from application.data.model import Service, ServiceRequest, Customer, Review, db
+from application.data.model import Service, ServiceRequest, Customer, Review, db, Package
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
@@ -13,13 +13,25 @@ class ListAvailableServices(Resource):
     def get(self):
         try:
             services = Service.query.all()
-            service_list = [{
-                'id': service.id,
-                'name': service.name,
-                'description': service.description,
-                'price': service.price,
-                'time_required': service.time_required
-            } for service in services]
+            service_list = []
+            for service in services:
+                packages = [{
+                    'id': pkg.id,
+                    'name': pkg.name,
+                    'description': pkg.description,
+                    'price': pkg.price,
+                    'time_required': pkg.time_required
+                } for pkg in service.packages]
+
+                service_list.append({
+                    'id': service.id,
+                    'name': service.name,
+                    'description': service.description,
+                    'base_price': service.price,
+                    'time_required': service.time_required,
+                    'packages': packages
+                })
+
             return {'services': service_list}, 200
         except SQLAlchemyError as e:
             return {
