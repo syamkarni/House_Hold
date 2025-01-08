@@ -33,7 +33,7 @@
         const requestId = this.$route.params.requestId;
         try {
           await axios.post(
-            `/customer/service_requests/${requestId}/review`,
+            `/customer/service_request/${requestId}/review`,
             {
               rating: this.rating,
               comment: this.comment,

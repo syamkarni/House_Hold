@@ -30,11 +30,17 @@
             <td>{{ request.remarks }}</td>
             <td>
               <button
-                v-if="['requested', 'assigned'].includes(request.service_status)"
+                v-if="['requested'].includes(request.service_status)"
                 @click="cancelRequest(request.id)"
               >
                 Cancel
               </button>
+              <button
+                v-if="request.service_status === 'assigned'"
+                @click="closeRequest(request.id)"
+              >
+                Close It
+            </button>
               <button
                 v-if="request.service_status === 'completed' && !request.reviewed"
                 @click="provideReview(request.id)"
@@ -94,6 +100,23 @@
           this.fetchServiceRequests();
         } catch (error) {
           console.error('Error cancelling service request:', error);
+        }
+      },
+      async closeRequest(requestId) {
+        try {
+          await axios.put(
+            `/customer/service_request/${requestId}/close`, 
+            {},
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              },
+            }
+          );
+          this.$router.push({ name: 'ProvideReview', params: { requestId } });
+        } catch (error) {
+          console.error('Error closing service request:', error);
+          this.error = 'Error closing service request.';
         }
       },
       provideReview(requestId) {

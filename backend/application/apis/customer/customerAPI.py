@@ -197,6 +197,38 @@ class CancelServiceRequest(Resource):
         except SQLAlchemyError as e:
             db.session.rollback()
             return {'message': 'An error occurred while cancelling service request', 'error': str(e)}, 500
+        
+class CloseServiceRequest(Resource):
+    @jwt_required()
+    def put(self, request_id):
+        try:
+            service_request = ServiceRequest.query.get_or_404(request_id)
+            identity = get_jwt_identity()
+            user_id = identity['user_id']
+            roles = identity['roles']
+
+            if 'customer' not in roles:
+                return {'message': 'Unauthorized: Only customers can close service requests'}, 403
+
+            customer = Customer.query.filter_by(user_id=user_id).first()
+            if not customer or service_request.customer_id != customer.id:
+                return {'message': 'Unauthorized access to this service request'}, 403
+
+            if service_request.service_status != 'assigned':
+                return {'message': 'Service request cannot be closed at this stage'}, 400
+
+            service_request.service_status = 'completed'
+            service_request.date_of_completion = datetime.datetime.utcnow()
+            db.session.commit()
+
+            return {'message': 'Service request closed successfully'}, 200
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {
+                'message': 'An error occurred while closing service request',
+                'error': str(e)
+            }, 500
 
 class ProvideReview(Resource):
     @jwt_required()
@@ -307,3 +339,4 @@ customer_api.add_resource(EditServiceRequest, '/customer/service_request/<int:re
 customer_api.add_resource(CancelServiceRequest, '/customer/service_request/<int:request_id>/cancel')
 customer_api.add_resource(ProvideReview, '/customer/service_request/<int:request_id>/review')
 customer_api.add_resource(CustomerProfileAPI, '/customer/profile')
+customer_api.add_resource(CloseServiceRequest, '/customer/service_request/<int:request_id>/close')

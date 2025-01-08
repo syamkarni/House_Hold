@@ -6,14 +6,14 @@
       <nav>
       <ul>
         <li><router-link to="/customer/services">View Available Services</router-link></li>
-        <li><router-link to="/customer/service_requests">View My Service Requests</router-link></li>
-        <li>
+        <li><router-link to="/customer/service_requests">View Service History</router-link></li>
+        <!-- <li>
           <router-link
             :to="{ name: 'ProvideReview', params: { requestId: 1 } }"
           >
             Provide Review for a Service Request (Sample ID: 1)
           </router-link>
-        </li>
+        </li> -->
       </ul>
     </nav>
 

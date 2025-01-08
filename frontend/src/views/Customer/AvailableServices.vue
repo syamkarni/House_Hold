@@ -7,9 +7,9 @@
         <li v-for="service in services" :key="service.id">
           <h3>{{ service.name }}</h3>
           <p>{{ service.description }}</p>
-          <p>Price: ${{ service.price }}</p>
-          <p>Time Required: {{ service.time_required }} minutes</p>
-          <button @click="requestService(service.id)">Request Service</button>
+          <!-- <p>Price: ${{ service.price }}</p> -->
+          <p>Avgerage Time Required: {{ service.time_required }} minutes</p>
+          <button @click="requestService(service.id)">View Services Available</button>
         </li>
       </ul>
     </div>
