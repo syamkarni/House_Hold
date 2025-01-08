@@ -62,8 +62,8 @@ export default {
       try {
         const payload = {
           service_id: this.service.id,
-          package_id: packageId,
-          remarks: ''  
+          remarks: this.remarks || '',  
+          package_id: packageId,        
         };
         await axios.post('/customer/service_request', payload, {
           headers: {

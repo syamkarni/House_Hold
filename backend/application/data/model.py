@@ -102,6 +102,7 @@ class ServiceRequest(db.Model):
     __tablename__ = 'service_request'
     id = db.Column(db.Integer, primary_key=True)
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'))
+    package_id = db.Column(db.Integer, db.ForeignKey('package.id'), nullable=True)
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     professional_id = db.Column(db.Integer, db.ForeignKey('service_professional.id'), nullable=True)
     date_of_request = db.Column(db.DateTime, default=datetime.datetime.utcnow)
@@ -110,6 +111,7 @@ class ServiceRequest(db.Model):
     remarks = db.Column(db.Text)
 
     service = db.relationship('Service', back_populates='service_requests')
+    package = db.relationship('Package')
     customer = db.relationship('Customer', back_populates='service_requests')
     professional = db.relationship('ServiceProfessional', back_populates='service_requests')
     reviews = db.relationship('Review', back_populates='service_request')

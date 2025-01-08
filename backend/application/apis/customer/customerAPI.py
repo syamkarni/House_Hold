@@ -80,12 +80,23 @@ class CustomerServiceRequests(Resource):
 
                 review_exists = Review.query.filter_by(service_request_id=r.id).first() is not None
 
+                package_data = None
+                if r.package:
+                    package_data = {
+                        'id': r.package.id,
+                        'name': r.package.name,
+                        'description': r.package.description,
+                        'price': r.package.price,
+                        'time_required': r.package.time_required
+                    }
+
                 request_dict = {
                     'id': r.id,
                     'service_id': r.service_id,
                     'service': service_data,
                     'professional_id': r.professional_id,
                     'professional': professional_data,
+                    'package': package_data,
                     'date_of_request': r.date_of_request.isoformat(),
                     'date_of_completion': r.date_of_completion.isoformat() if r.date_of_completion else None,
                     'service_status': r.service_status,
@@ -107,6 +118,7 @@ class CreateServiceRequest(Resource):
         data = request.get_json()
         try:
             service_id = data['service_id']
+            package_id = data.get('package_id')  
             date_of_request = data.get('date_of_request', datetime.datetime.utcnow())
             remarks = data.get('remarks')
 
@@ -127,6 +139,7 @@ class CreateServiceRequest(Resource):
 
             new_request = ServiceRequest(
                 service_id=service_id,
+                package_id=package_id,
                 customer_id=customer.id,
                 date_of_request=date_of_request,
                 service_status='requested',

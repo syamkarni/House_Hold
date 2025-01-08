@@ -6,6 +6,7 @@
         <thead>
           <tr>
             <th>Service</th>
+            <th>Package</th> 
             <th>Professional</th>
             <th>Date of Request</th>
             <th>Status</th>
@@ -16,6 +17,10 @@
         <tbody>
           <tr v-for="request in requests" :key="request.id">
             <td>{{ request.service.name }}</td>
+            <td>
+            <span v-if="request.package">{{ request.package.name }}</span>
+            <span v-else>N/A</span>
+          </td>
             <td>
               <div v-if="request.professional">
                 <!-- {{ request.professional.name }} ({{ request.professional.service_type }}) -->
