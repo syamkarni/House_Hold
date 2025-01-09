@@ -29,29 +29,30 @@
       </div>
   
       <!-- Services List -->
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Price</th>
-            <th>Time Required</th>
-            <th>Description</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="service in services" :key="service.id">
-            <td>{{ service.name }}</td>
-            <td>{{ service.price }}</td>
-            <td>{{ service.time_required }}</td>
-            <td>{{ service.description }}</td>
-            <td>
-              <button @click="editService(service)">Edit</button>
-              <button @click="deleteService(service.id)">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div v-if="services.length">
+      <div v-for="service in services" :key="service.id" class="service-card">
+        <h3>{{ service.name }}</h3>
+        <p><strong>Price:</strong> {{ service.price }}</p>
+        <p><strong>Time Required:</strong> {{ service.time_required }}</p>
+        <p><strong>Description:</strong> {{ service.description }}</p>
+        <div>
+          <strong>Packages:</strong>
+          <ul v-if="service.packages && service.packages.length">
+            <li v-for="pkg in service.packages" :key="pkg.id">
+              {{ pkg.name }} - {{ pkg.description }} - ${{ pkg.price }} - {{ pkg.time_required }} mins
+            </li>
+          </ul>
+          <span v-else>N/A</span>
+        </div>
+        <div>
+          <button @click="editService(service)">Edit</button>
+          <button @click="deleteService(service.id)">Delete</button>
+        </div>
+      </div>
+    </div>
+    <div v-else>
+      <p>No services found.</p>
+    </div>
   
       <!-- Edit Service Form -->
       <div v-if="showEditForm">
@@ -109,7 +110,7 @@
       async fetchServices() {
         this.error = null;
         try {
-          const response = await axios.get('/services', {
+          const response = await axios.get('/admin/services', {
             headers: {
               Authorization: `Bearer ${localStorage.getItem('access_token')}`,
             },

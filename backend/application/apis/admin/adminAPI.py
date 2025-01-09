@@ -108,6 +108,41 @@ class CreateService(Resource):
             db.session.rollback()
             return {'message': 'An error occurred while creating service', 'error': str(e)}, 500
         
+class AdminServices(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            services = Service.query.all()
+            service_list = []
+            for service in services:
+                packages = [{
+                    'id': pkg.id,
+                    'name': pkg.name,
+                    'description': pkg.description,
+                    'price': pkg.price,
+                    'time_required': pkg.time_required
+                } for pkg in service.packages]
+
+                service_list.append({
+                    'id': service.id,
+                    'name': service.name,
+                    'description': service.description,
+                    'price': service.price,
+                    'time_required': service.time_required,
+                    'packages': packages
+                })
+
+            return {'services': service_list}, 200
+
+        except SQLAlchemyError as e:
+            return {'message': 'Error fetching services', 'error': str(e)}, 500
+        
+        
 class GetUsers(Resource):
     @jwt_required()
     def get(self):
@@ -239,3 +274,4 @@ admin_api.add_resource(DeleteService, '/admin/service/<int:service_id>')
 admin_api.add_resource(GetUsers, '/admin/users')
 admin_api.add_resource(PendingProfessionals, '/admin/professionals/pending')
 admin_api.add_resource(RejectProfessional, '/admin/professional/<int:professional_id>/reject')
+admin_api.add_resource(AdminServices, '/admin/services')
