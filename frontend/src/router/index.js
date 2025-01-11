@@ -10,6 +10,7 @@ import ManageUser from '@/views/Admin/ManageUser.vue';
 import ManageServices from '@/views/Admin/ManageServices.vue';
 import ApproveProfessionals from '@/views/Admin/ApproveProfessionals.vue';
 import AdminReports from '@/views/Admin/AdminReports.vue';
+import EditService from '@/views/Admin/EditService.vue';
 
 import AssignedRequests from '@/views/Professional/AssignedRequests.vue';
 
@@ -48,6 +49,7 @@ const routes = [
       },
       {
         path: 'manage-services',
+        name: 'ManageServices',
         component: ManageServices,
         meta: { requiresAuth: true, role: 'admin' },
       },
@@ -59,6 +61,12 @@ const routes = [
       {
         path: 'admin-reports',
         component: AdminReports,
+        meta: { requiresAuth: true, role: 'admin' },
+      },
+      {
+        path: '/admin/service/:id/edit',
+        name: 'EditService',
+        component: EditService,
         meta: { requiresAuth: true, role: 'admin' },
       },
     ],

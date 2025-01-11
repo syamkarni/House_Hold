@@ -32,8 +32,8 @@
       <div v-if="services.length">
       <div v-for="service in services" :key="service.id" class="service-card">
         <h3>{{ service.name }}</h3>
-        <p><strong>Price:</strong> {{ service.price }}</p>
-        <p><strong>Time Required:</strong> {{ service.time_required }}</p>
+        <p><strong>Average Price:</strong> {{ service.price }}</p>
+        <p><strong>Average Time Required:</strong> {{ service.time_required }}</p>
         <p><strong>Description:</strong> {{ service.description }}</p>
         <div>
           <strong>Packages:</strong>
@@ -42,10 +42,13 @@
               {{ pkg.name }} - {{ pkg.description }} - ${{ pkg.price }} - {{ pkg.time_required }} mins
             </li>
           </ul>
-          <span v-else>N/A</span>
+          <span v-else>No packages found for this service</span>
         </div>
         <div>
-          <button @click="editService(service)">Edit</button>
+          <!-- <button @click="editService(service)">Edit</button> -->
+          <button @click="$router.push({ name: 'EditService', params: { id: service.id } })">
+            Edit
+          </button>
           <button @click="deleteService(service.id)">Delete</button>
         </div>
       </div>
