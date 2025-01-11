@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from application.data.model import User, ServiceProfessional, Service, db
+from application.data.model import User, ServiceProfessional, Service, db, Package
 from sqlalchemy.exc import SQLAlchemyError
 
 admin_bp = Blueprint('admin_bp', __name__)
@@ -207,6 +207,76 @@ class DeleteService(Resource):
             db.session.rollback()
             return {'message': 'An error occurred while deleting service', 'error': str(e)}, 500
         
+class CreatePackage(Resource):
+    @jwt_required()
+    def post(self, service_id):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            data = request.get_json()
+            name = data['name']
+            description = data.get('description')
+            price = data['price']
+            time_required = data['time_required']
+
+            service = Service.query.get_or_404(service_id)
+
+            new_package = Package(
+                service_id=service_id,
+                name=name,
+                description=description,
+                price=price,
+                time_required=time_required
+            )
+            db.session.add(new_package)
+            db.session.commit()
+            return {'message': 'Package created successfully', 'package_id': new_package.id}, 201
+        except Exception as e:
+            db.session.rollback()
+            return {'message': 'Error creating package', 'error': str(e)}, 500
+class UpdatePackage(Resource):
+    @jwt_required()
+    def put(self, package_id):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            data = request.get_json()
+            package = Package.query.get_or_404(package_id)
+
+            package.name = data.get('name', package.name)
+            package.description = data.get('description', package.description)
+            package.price = data.get('price', package.price)
+            package.time_required = data.get('time_required', package.time_required)
+
+            db.session.commit()
+            return {'message': 'Package updated successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {'message': 'Error updating package', 'error': str(e)}, 500
+
+class DeletePackage(Resource):
+    @jwt_required()
+    def delete(self, package_id):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            package = Package.query.get_or_404(package_id)
+            db.session.delete(package)
+            db.session.commit()
+            return {'message': 'Package deleted successfully'}, 200
+        except Exception as e:
+            db.session.rollback()
+            return {'message': 'Error deleting package', 'error': str(e)}, 500
+
 class PendingProfessionals(Resource):
     @jwt_required()
     def get(self):
@@ -275,3 +345,6 @@ admin_api.add_resource(GetUsers, '/admin/users')
 admin_api.add_resource(PendingProfessionals, '/admin/professionals/pending')
 admin_api.add_resource(RejectProfessional, '/admin/professional/<int:professional_id>/reject')
 admin_api.add_resource(AdminServices, '/admin/services')
+admin_api.add_resource(CreatePackage, '/admin/service/<int:service_id>/package')
+admin_api.add_resource(UpdatePackage, '/admin/package/<int:package_id>')
+admin_api.add_resource(DeletePackage, '/admin/package/<int:package_id>')

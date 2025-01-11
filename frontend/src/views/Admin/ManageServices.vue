@@ -37,11 +37,24 @@
         <p><strong>Description:</strong> {{ service.description }}</p>
         <div>
           <strong>Packages:</strong>
-          <ul v-if="service.packages && service.packages.length">
-            <li v-for="pkg in service.packages" :key="pkg.id">
-              {{ pkg.name }} - {{ pkg.description }} - ${{ pkg.price }} - {{ pkg.time_required }} mins
-            </li>
-          </ul>
+          <table v-if="service.packages && service.packages.length">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Time Required (mins)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="pkg in service.packages" :key="pkg.id">
+                <td>{{ pkg.name }}</td>
+                <td>{{ pkg.description }}</td>
+                <td>${{ pkg.price }}</td>
+                <td>{{ pkg.time_required }}</td>
+              </tr>
+            </tbody>
+          </table>
           <span v-else>No packages found for this service</span>
         </div>
         <div>
