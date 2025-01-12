@@ -8,6 +8,7 @@
             <th>Service</th>
             <th>Package</th> 
             <th>Professional</th>
+            <th>Professional number</th>
             <th>Date of Request</th>
             <th>Status</th>
             <th>Remarks</th>
@@ -28,6 +29,14 @@
               </div>
               <div v-else>
                 Not Assigned
+              </div>
+            </td>
+            <td>
+              <div v-if="request.professional && request.professional.phone">
+                {{ request.professional.phone }}
+              </div>
+              <div v-else>
+                N/A
               </div>
             </td>
             <td>{{ request.date_of_request }}</td>

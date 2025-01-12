@@ -58,6 +58,7 @@ class ServiceProfessional(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.user_id'))
     name = db.Column(db.String(255), nullable=False)
+    phone = db.Column(db.String(20))
     date_created = db.Column(db.DateTime, default=datetime.datetime.utcnow)
     description = db.Column(db.Text)
     service_id = db.Column(db.Integer, db.ForeignKey('service.id'), nullable=True)
@@ -71,7 +72,7 @@ class ServiceProfessional(db.Model):
     reviews = db.relationship('Review', back_populates='professional')
 
     def is_profile_complete(self):
-        return bool(self.name and self.description and self.service_id and self.experience)
+        return bool(self.name and self.description and self.service_id and self.experience and self.phone)
 
 class Service(db.Model):
     __tablename__ = 'service'
