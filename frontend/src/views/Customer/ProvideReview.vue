@@ -29,6 +29,7 @@
         <textarea id="comment" v-model="comment"></textarea>
       </div>
       <button type="submit">Submit Review</button>
+      <button type="button" @click="cancelReview">Cancel</button>
     </form>
   </div>
 </template>
@@ -86,6 +87,9 @@ export default {
         console.error('Error submitting review:', error);
       }
     },
+    cancelReview() {
+      this.$router.push({ name: 'CustomerServiceRequests' });
+    }
   },
 };
 </script>
