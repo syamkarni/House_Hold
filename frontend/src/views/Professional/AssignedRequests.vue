@@ -7,8 +7,8 @@
         <tr>
           <th>Service</th>
           <th>Date of Request</th>
-          <th>Status</th>
-          <th>Customer Remarks</th>
+          <!-- <th>Status</th> -->
+          <!-- <th>Customer Remarks</th> -->
           <th>Actions</th>
         </tr>
       </thead>
@@ -16,7 +16,7 @@
         <tr v-for="request in unassignedRequests" :key="request.id">
           <td>{{ request.service.name }}</td>
           <td>{{ request.date_of_request }}</td>
-          <td>{{ request.service_status }}</td>
+          <!-- <td>{{ request.service_status }}</td> -->
           <td>{{ request.remarks }}</td>
           <td>
             <button @click="acceptRequest(request.id)">Accept</button>
@@ -36,7 +36,7 @@
           <th>Service</th>
           <th>Date of Request</th>
           <th>Status</th>
-          <th>Customer Remarks</th>
+          <!-- <th>Customer Remarks</th> -->
           <th>Actions</th>
         </tr>
       </thead>
@@ -45,7 +45,7 @@
           <td>{{ request.service.name }}</td>
           <td>{{ request.date_of_request }}</td>
           <td>{{ request.service_status }}</td>
-          <td>{{ request.remarks }}</td>
+          <!-- <td>{{ request.remarks }}</td> -->
           <td>
             <button @click="completeRequest(request.id)">Mark as Completed</button>
           </td>
@@ -65,6 +65,7 @@
           <th>Date of Request</th>
           <th>Date of Completion</th>
           <th>Status</th>
+          <th>Rating</th>
           <th>Customer Remarks</th>
         </tr>
       </thead>
@@ -74,6 +75,11 @@
           <td>{{ request.date_of_request }}</td>
           <td>{{ request.date_of_completion || 'N/A' }}</td>
           <td>{{ request.service_status }}</td>
+          <td>
+            <span :style="{ color: request.rating === 'Not Rated' ? 'red' : 'black' }">
+              {{request.rating}}
+            </span>
+          </td>
           <td>
             <span :style="{ color: request.remarks === 'Customer Yet to Rate' ? 'red' : 'black' }">
               {{ request.remarks }}

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from application.data.model import ServiceRequest, ServiceProfessional, db, Service
+from application.data.model import ServiceRequest, ServiceProfessional, db, Service, Review
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
 
@@ -132,10 +132,13 @@ class ListServiceRequestHistory(Resource):
                         'time_required': r.service.time_required
                     }
 
-                if r.reviews and len(r.reviews) > 0:
-                    review_comment = r.reviews[0].comment if r.reviews[0].comment else '-'
+                review = Review.query.filter_by(service_request_id=r.id).first()
+                if review:
+                    review_comment = review.comment if review.comment else '-'
+                    review_rating = review.rating
                 else:
                     review_comment = "Customer Yet to Rate"
+                    review_rating = "Not Rated"
 
                 request_dict = {
                     'id': r.id,
@@ -145,7 +148,8 @@ class ListServiceRequestHistory(Resource):
                     'date_of_request': r.date_of_request.isoformat(),
                     'date_of_completion': r.date_of_completion.isoformat() if r.date_of_completion else None,
                     'service_status': r.service_status,
-                    'remarks': review_comment
+                    'remarks': review_comment,
+                    'rating': review_rating
                 }
                 request_list.append(request_dict)
 

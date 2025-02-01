@@ -123,7 +123,7 @@ class Review(db.Model):
     service_request_id = db.Column(db.Integer, db.ForeignKey('service_request.id'))
     customer_id = db.Column(db.Integer, db.ForeignKey('customer.id'))
     professional_id = db.Column(db.Integer, db.ForeignKey('service_professional.id'))
-    rating = db.Column(db.Integer, nullable=False)
+    rating = db.Column(db.Integer, nullable=False, default=-1)
     comment = db.Column(db.Text)
     date_posted = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 

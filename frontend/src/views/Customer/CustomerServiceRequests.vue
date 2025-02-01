@@ -11,7 +11,7 @@
             <th>Professional number</th>
             <th>Date of Request</th>
             <th>Status</th>
-            <th>Remarks</th>
+            <!-- <th>Remarks</th> -->
             <th>Actions</th>
           </tr>
         </thead>
@@ -41,7 +41,7 @@
             </td>
             <td>{{ request.date_of_request }}</td>
             <td>{{ request.service_status }}</td>
-            <td>{{ request.remarks }}</td>
+            <!-- <td>{{ request.remarks }}</td> -->
             <td>
               <button
                 v-if="['requested'].includes(request.service_status)"

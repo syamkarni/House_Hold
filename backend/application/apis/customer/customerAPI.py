@@ -252,7 +252,7 @@ class ProvideReview(Resource):
             rating = data.get('rating')
             comment = data.get('comment')
 
-            if not rating or not (1 <= rating <= 5):
+            if not rating or not (1 <= rating <= 6):
                 return {'message': 'Rating must be an integer between 1 and 5'}, 400
 
             identity = get_jwt_identity()
