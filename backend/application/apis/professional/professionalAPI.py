@@ -132,6 +132,11 @@ class ListServiceRequestHistory(Resource):
                         'time_required': r.service.time_required
                     }
 
+                if r.reviews and len(r.reviews) > 0:
+                    review_comment = r.reviews[0].comment if r.reviews[0].comment else '-'
+                else:
+                    review_comment = "Customer Yet to Rate"
+
                 request_dict = {
                     'id': r.id,
                     'service_id': r.service_id,
@@ -140,7 +145,7 @@ class ListServiceRequestHistory(Resource):
                     'date_of_request': r.date_of_request.isoformat(),
                     'date_of_completion': r.date_of_completion.isoformat() if r.date_of_completion else None,
                     'service_status': r.service_status,
-                    'remarks': r.remarks
+                    'remarks': review_comment
                 }
                 request_list.append(request_dict)
 

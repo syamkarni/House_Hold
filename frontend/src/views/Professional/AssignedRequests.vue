@@ -74,7 +74,11 @@
           <td>{{ request.date_of_request }}</td>
           <td>{{ request.date_of_completion || 'N/A' }}</td>
           <td>{{ request.service_status }}</td>
-          <td>{{ request.remarks }}</td>
+          <td>
+            <span :style="{ color: request.remarks === 'Customer Yet to Rate' ? 'red' : 'black' }">
+              {{ request.remarks }}
+            </span>
+          </td>
         </tr>
       </tbody>
     </table>
