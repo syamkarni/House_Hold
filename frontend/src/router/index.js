@@ -22,6 +22,8 @@ import CustomerProfile from '@/views/Customer/CustomerProfile.vue';
 import ProfessionalProfile from '@/views/Professional/ProfessionalProfile.vue';
 import ProfessionalPendingApproval from '@/views/Professional/ProfessionalPendingApproval.vue';
 
+import SearchResults from '@/views/SearchResults.vue';
+
 const routes = [
   {
     path: '/',
@@ -123,6 +125,16 @@ const routes = [
     name: 'ProfessionalPendingApproval',
     component: ProfessionalPendingApproval,
     meta: { requiresAuth: true, role: 'professional' },
+  },
+  {
+    path: '/search-results/:role',
+    name: 'SearchResults',
+    component: SearchResults,
+    props: (route) => ({
+      role: route.params.role,
+      results: route.query.results ? JSON.parse(route.query.results) : []
+    }),
+    meta: { requiresAuth: true },
   },
   {
     path: '/professional',
