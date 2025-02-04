@@ -2,7 +2,6 @@
     <div>
       <h2>Admin Search</h2>
   
-      <!-- Category Dropdown -->
       <label for="category">Search Category:</label>
       <select id="category" v-model="selectedCategory">
         <option value="user">User</option>
@@ -10,7 +9,6 @@
         <option value="service">Service</option>
       </select>
   
-      <!-- Search Term Input -->
       <label for="searchTerm">Search Term:</label>
       <input
         type="text"
@@ -19,14 +17,11 @@
         placeholder="Enter keyword..."
       />
   
-      <!-- Search Button -->
       <button @click="performSearch">Search</button>
   
-      <!-- Results -->
       <div class="search-results" v-if="results && results.length">
         <h3>Results ({{ selectedCategory }})</h3>
   
-        <!-- If searching Users -->
         <div v-if="selectedCategory === 'user'">
           <div
             v-for="user in results"
@@ -40,8 +35,6 @@
             <hr />
           </div>
         </div>
-  
-        <!-- If searching Professionals -->
         <div v-if="selectedCategory === 'professional'">
           <div
             v-for="pro in results"
@@ -58,7 +51,6 @@
           </div>
         </div>
   
-        <!-- If searching Services -->
         <div v-if="selectedCategory === 'service'">
           <div
             v-for="service in results"
@@ -75,7 +67,6 @@
         </div>
       </div>
   
-      <!-- No results found -->
       <div v-else-if="results && !results.length">
         <h4>No results found.</h4>
       </div>
@@ -97,7 +88,6 @@
     methods: {
       async performSearch() {
         try {
-          // We'll get the access token from localStorage
           const token = localStorage.getItem('access_token');
   
           const response = await api.get('/admin/search', {
