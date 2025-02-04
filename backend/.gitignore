@@ -9,3 +9,4 @@ insert_data.py
 db_data.py
 register_api.log
 *.log
+/testing
