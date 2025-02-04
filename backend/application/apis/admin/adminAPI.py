@@ -330,6 +330,59 @@ class RejectProfessional(Resource):
         except Exception as e:
             return {'message': 'An unexpected error occurred', 'error': str(e)}, 500
 
+class AdminSearch(Resource):
+    @jwt_required()
+    def get(self):
+        identity = get_jwt_identity()
+        roles = identity['roles']
+        if 'admin' not in roles:
+            return {'message': 'Admins only'}, 403
+        category = request.args.get('category', '').lower()
+        search_term = request.args.get('searchTerm', '')
+        results = []
+        try:
+            if category == 'user':
+                queried_users = User.query.filter(User.u_mail.ilike(f"%{search_term}%")).all()
+                results = [
+                    {
+                        "user_id": u.user_id,
+                        "u_mail": u.u_mail,
+                        "is_active": u.active,
+                        "roles": [role.name for role in u.roles]
+                    }
+                    for u in queried_users
+                ]
+            elif category == 'professional':
+                queried_pros = ServiceProfessional.query.filter(ServiceProfessional.name.ilike(f"%{search_term}%")).all()
+                results = [
+                    {
+                        "id": pro.id,
+                        "name": pro.name,
+                        "approved": pro.approved,
+                        "experience": pro.experience,
+                        "description": pro.description,
+                        "is_blocked": pro.is_blocked
+                    }
+                    for pro in queried_pros
+                ]
+            elif category == 'service':
+                queried_services = Service.query.filter(Service.name.ilike(f"%{search_term}%")).all()
+                results = [
+                    {
+                        "id": srv.id,
+                        "name": srv.name,
+                        "description": srv.description,
+                        "price": srv.price,
+                        "time_required": srv.time_required
+                    }
+                    for srv in queried_services
+                ]
+            else:
+                return {'message': 'Invalid category'}, 400
+            return {'results': results}, 200
+        except Exception as e:
+            return {'message': 'Error occurred while searching', 'error': str(e)}, 500
+
 
 
 
@@ -348,3 +401,4 @@ admin_api.add_resource(AdminServices, '/admin/services')
 admin_api.add_resource(CreatePackage, '/admin/service/<int:service_id>/package')
 admin_api.add_resource(UpdatePackage, '/admin/package/<int:package_id>')
 admin_api.add_resource(DeletePackage, '/admin/package/<int:package_id>')
+admin_api.add_resource(AdminSearch, '/admin/search')
