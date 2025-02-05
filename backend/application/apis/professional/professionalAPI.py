@@ -311,6 +311,72 @@ class GetAvailableServices(Resource):
             print("Error fetching services:", e)  
             return {'message': 'An error occurred while fetching services', 'error': str(e)}, 500
 
+class ProfessionalSearchAPI(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            user_id = identity['user_id']
+            roles = identity.get('roles', [])
+
+            if 'professional' not in roles:
+                return {'message': 'Unauthorized: Only professionals can access this endpoint'}, 403
+
+            category = request.args.get('category', '')
+            search_term = request.args.get('searchTerm', '')
+            from_date = request.args.get('fromDate')
+            to_date = request.args.get('toDate')
+
+            query = ServiceRequest.query
+
+            if category == 'service':
+                query = query.join(Service).filter(Service.name.ilike(f"%{search_term}%"))
+            elif category == 'customer_remarks':
+                query = query.filter(ServiceRequest.remarks.ilike(f"%{search_term}%"))
+            elif category == 'date_of_request':
+                if from_date and to_date:
+                    query = query.filter(
+                        ServiceRequest.date_of_request >= from_date,
+                        ServiceRequest.date_of_request <= to_date
+                    )
+                elif from_date:
+                    query = query.filter(ServiceRequest.date_of_request >= from_date)
+                elif to_date:
+                    query = query.filter(ServiceRequest.date_of_request <= to_date)
+
+            requests = query.all()
+
+            result_list = []
+            for r in requests:
+                service_data = None
+                if r.service:
+                    service_data = {
+                        'id': r.service.id,
+                        'name': r.service.name,
+                        'description': r.service.description,
+                        'price': r.service.price,
+                        'time_required': r.service.time_required
+                    }
+
+                request_dict = {
+                    'id': r.id,
+                    'service': service_data,
+                    'date_of_request': r.date_of_request.isoformat(),
+                    'remarks': r.remarks,
+                    'service_status': r.service_status
+                }
+                result_list.append(request_dict)
+
+            return {'requests': result_list}, 200
+        except SQLAlchemyError as e:
+            return {
+                'message': 'An error occurred while searching service requests',
+                'error': str(e)
+            }, 500
+
+
+
+
 
 
 professional_api.add_resource(ListAssignedServiceRequests, '/professional/service_requests')
@@ -321,3 +387,4 @@ professional_api.add_resource(RejectServiceRequest, '/professional/service_reque
 professional_api.add_resource(CompleteServiceRequest, '/professional/service_request/<int:request_id>/complete')
 professional_api.add_resource(ProfessionalProfileAPI, '/professional/profile')
 professional_api.add_resource(GetAvailableServices, '/professional/services')
+professional_api.add_resource(ProfessionalSearchAPI, '/professional/search')

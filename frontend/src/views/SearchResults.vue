@@ -1,3 +1,5 @@
+<!-- Ignore this file -->
+
 <template>
     <div>
       <h2>Search Results for {{ role }}</h2>

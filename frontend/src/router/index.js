@@ -22,6 +22,7 @@ import CustomerProfile from '@/views/Customer/CustomerProfile.vue';
 import ProfessionalProfile from '@/views/Professional/ProfessionalProfile.vue';
 import ProfessionalPendingApproval from '@/views/Professional/ProfessionalPendingApproval.vue';
 import AdminSearch from '@/views/Admin/AdminSearch.vue';
+import ProfessionalSearch from '@/views/Professional/ProfessionalSearch.vue';
 
 import SearchResults from '@/views/SearchResults.vue';
 
@@ -45,7 +46,13 @@ const routes = [
     name: 'AdminSearch',
     component: AdminSearch,
     meta: { requiresAuth: true, role: 'admin' }, 
-  },  
+  }, 
+  {
+    path: '/professional/search',
+    name: 'ProfessionalSearch',
+    component: ProfessionalSearch,
+    meta: { requiresAuth: true, role: 'professional' }, 
+  }, 
   {
     path: '/admin',
     component: AdminDashboard,
