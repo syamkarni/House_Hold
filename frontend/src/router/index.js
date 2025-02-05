@@ -54,6 +54,12 @@ const routes = [
     meta: { requiresAuth: true, role: 'professional' }, 
   }, 
   {
+    path: '/customer/search',
+    name: 'CustomerSearch',
+    component: () => import('@/views/Customer/CustomerSearch.vue'),
+    meta: { requiresAuth: true, role: 'customer' },
+  },  
+  {
     path: '/admin',
     component: AdminDashboard,
     meta: { requiresAuth: true, role: 'admin' },

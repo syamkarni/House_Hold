@@ -345,6 +345,78 @@ class CustomerProfileAPI(Resource):
             db.session.rollback()
             return {'message': 'An error occurred while updating profile', 'error': str(e)}, 500
 
+class CustomerSearchAPI(Resource):
+    @jwt_required()
+    def get(self):
+        """
+        Search either services or packages by name.
+        Request params:
+          category = "services" or "packages"
+          searchTerm = string
+        """
+        try:
+            identity = get_jwt_identity()
+            roles = identity.get('roles', [])
+            if 'customer' not in roles:
+                return {'message': 'Unauthorized: Only customers can search'}, 403
+
+            category = request.args.get('category', '').lower()
+            search_term = request.args.get('searchTerm', '')
+
+            if category == 'services':
+                services = Service.query.filter(Service.name.ilike(f"%{search_term}%")).all()
+                service_list = []
+                for svc in services:
+                    packages_data = []
+                    for pkg in svc.packages:
+                        packages_data.append({
+                            'id': pkg.id,
+                            'name': pkg.name,
+                            'price': pkg.price,
+                            'description': pkg.description,
+                            'time_required': pkg.time_required
+                        })
+
+                    service_list.append({
+                        'id': svc.id,
+                        'name': svc.name,
+                        'description': svc.description,
+                        'base_price': svc.price,
+                        'time_required': svc.time_required,
+                        'packages': packages_data
+                    })
+                return {'services': service_list}, 200
+
+            elif category == 'packages':
+                packages = Package.query.filter(Package.name.ilike(f"%{search_term}%")).all()
+                package_list = []
+                for pkg in packages:
+                    service_data = None
+                    if pkg.service:
+                        service_data = {
+                            'id': pkg.service.id,
+                            'name': pkg.service.name
+                        }
+                    package_list.append({
+                        'id': pkg.id,
+                        'name': pkg.name,
+                        'description': pkg.description,
+                        'price': pkg.price,
+                        'time_required': pkg.time_required,
+                        'service': service_data
+                    })
+                return {'packages': package_list}, 200
+
+            else:
+                return {'message': "Invalid category. Must be 'services' or 'packages'."}, 400
+
+        except SQLAlchemyError as e:
+            return {'message': 'Database error occurred while searching', 'error': str(e)}, 500
+        except Exception as e:
+            return {'message': 'Unexpected error', 'error': str(e)}, 500
+
+
+
 
 customer_api.add_resource(ListAvailableServices, '/customer/services')
 customer_api.add_resource(CustomerServiceRequests, '/customer/service_requests')
@@ -354,3 +426,4 @@ customer_api.add_resource(CancelServiceRequest, '/customer/service_request/<int:
 customer_api.add_resource(ProvideReview, '/customer/service_request/<int:request_id>/review')
 customer_api.add_resource(CustomerProfileAPI, '/customer/profile')
 customer_api.add_resource(CloseServiceRequest, '/customer/service_request/<int:request_id>/close')
+customer_api.add_resource(CustomerSearchAPI, '/customer/search')
