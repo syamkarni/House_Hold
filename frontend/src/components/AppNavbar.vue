@@ -23,14 +23,21 @@
         <router-link to="/professional">Professional Dashboard</router-link>
       </li>
     </ul>
+    <div v-if="authState.isAuthenticated && authState.userRole === 'customer'">
+      <CustomerSearchBar />
+    </div>
   </nav>
 </template>
 
 <script>
 import { authState, logout } from '@/services/auth';
+import CustomerSearchBar from '@/views/Customer/CustomerSearchBar.vue';
 
 export default {
   name: 'AppNavbar',
+  components:{
+    CustomerSearchBar
+  },
   setup() {
     const logoutUser = () => {
       logout();
