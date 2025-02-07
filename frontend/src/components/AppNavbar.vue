@@ -15,8 +15,6 @@
       </li>
       <li v-if="authState.isAuthenticated && authState.userRole === 'customer'">
         <router-link to="/customer">Customer Dashboard</router-link>
-      </li>
-      <li v-if="authState.isAuthenticated && authState.userRole === 'customer'">
         <router-link to="/customer/profile">Profile</router-link>
       </li>
       <li v-if="authState.isAuthenticated && authState.userRole === 'professional'">
@@ -26,22 +24,27 @@
     <div v-if="authState.isAuthenticated && authState.userRole === 'customer'">
       <CustomerSearchBar />
     </div>
+
+    <div v-if="authState.isAuthenticated && authState.userRole === 'admin'">
+      <AdminSearchBar />
+    </div>
   </nav>
 </template>
 
 <script>
 import { authState, logout } from '@/services/auth';
 import CustomerSearchBar from '@/views/Customer/CustomerSearchBar.vue';
+import AdminSearchBar from '@/views/Admin/AdminSearchBar.vue';
 
 export default {
   name: 'AppNavbar',
-  components:{
-    CustomerSearchBar
+  components: {
+    CustomerSearchBar,
+    AdminSearchBar
   },
   setup() {
     const logoutUser = () => {
       logout();
-      // removed localstoreage part
       window.location.href = '/login';
     };
 
