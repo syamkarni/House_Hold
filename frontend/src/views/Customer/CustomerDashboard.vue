@@ -14,7 +14,7 @@
             Provide Review for a Service Request (Sample ID: 1)
           </router-link>
         </li> -->
-        <li><router-link to="/customer/search">Search (Services/Packages)</router-link></li>
+        <!-- <li><router-link to="/customer/search">Search (Services/Packages)</router-link></li> -->
       </ul>
     </nav>
 

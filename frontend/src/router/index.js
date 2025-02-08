@@ -71,6 +71,12 @@ const routes = [
     component: () => import('@/views/Admin/AdminSearchResults.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },  
+  {
+    path: '/professional/search-results',
+    name: 'ProfessionalSearchResults',
+    component: () => import('@/views/Professional/ProfessionalSearchResults.vue'),
+    meta: { requiresAuth: true, role: 'professional' }
+  },  
   
   {
     path: '/admin',

@@ -28,6 +28,9 @@
     <div v-if="authState.isAuthenticated && authState.userRole === 'admin'">
       <AdminSearchBar />
     </div>
+    <div v-if="authState.isAuthenticated && authState.userRole == 'professional'">
+      <ProfessionalSearchBar />
+    </div>
   </nav>
 </template>
 
@@ -35,12 +38,14 @@
 import { authState, logout } from '@/services/auth';
 import CustomerSearchBar from '@/views/Customer/CustomerSearchBar.vue';
 import AdminSearchBar from '@/views/Admin/AdminSearchBar.vue';
+import ProfessionalSearchBar from '@/views/Professional/ProfessionalSearchBar.vue';
 
 export default {
   name: 'AppNavbar',
   components: {
     CustomerSearchBar,
-    AdminSearchBar
+    AdminSearchBar,
+    ProfessionalSearchBar
   },
   setup() {
     const logoutUser = () => {

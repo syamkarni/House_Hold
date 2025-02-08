@@ -9,11 +9,11 @@
       <!-- Dashboard content -->
       <ul>
         <li><router-link to="/professional/assigned-requests">Assigned Requests</router-link></li>
-        <li>
+        <!-- <li>
           <router-link to="/professional/search">
             Search Service Requests
           </router-link>
-        </li>
+        </li> -->
       </ul>
       <router-view></router-view>
     </div>
