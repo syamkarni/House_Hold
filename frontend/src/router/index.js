@@ -5,6 +5,7 @@ import AuthRegister from '@/views/Auth/AuthRegister.vue';
 import AdminDashboard from '@/views/Admin/AdminDashboard.vue';
 import CustomerDashboard from '@/views/Customer/CustomerDashboard.vue';
 import ProfessionalDashboard from '@/views/Professional/ProfessionalDashboard.vue';
+import AdminSummary from '@/views/Admin/AdminSummary.vue';
 
 import ManageUser from '@/views/Admin/ManageUser.vue';
 import ManageServices from '@/views/Admin/ManageServices.vue';
@@ -76,6 +77,11 @@ const routes = [
     name: 'ProfessionalSearchResults',
     component: () => import('@/views/Professional/ProfessionalSearchResults.vue'),
     meta: { requiresAuth: true, role: 'professional' }
+  },
+  {
+    path: '/admin/admin-summary',
+    name: 'AdminSummary',
+    component: AdminSummary
   },  
   
   {
@@ -83,6 +89,7 @@ const routes = [
     component: AdminDashboard,
     meta: { requiresAuth: true, role: 'admin' },
     children: [
+      // { path: 'admin-summary', component: AdminSummary },
       {
         path: 'manage-users',
         component: ManageUser,

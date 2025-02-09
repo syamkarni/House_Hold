@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.data.model import User, ServiceProfessional, Service, db, Package
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 
 admin_bp = Blueprint('admin_bp', __name__)
 admin_api = Api(admin_bp)
@@ -384,6 +385,45 @@ class AdminSearch(Resource):
             return {'message': 'Error occurred while searching', 'error': str(e)}, 500
 
 
+class AdminSummary(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            roles = identity['roles']
+            if 'admin' not in roles:
+                return {'message': 'Admins only'}, 403
+
+            total_users = User.query.count()
+
+            active_professionals = ServiceProfessional.query.filter_by(approved=True, is_blocked=False).count()
+
+            pending_professionals = ServiceProfessional.query.filter_by(approved=False).count()
+
+            total_services = Service.query.count()
+
+            services_with_packages = (
+                db.session.query(Service.name, func.count(Package.id).label('package_count'))
+                .outerjoin(Package, Service.id == Package.service_id)
+                .group_by(Service.name)
+                .all()
+            )
+            services_distribution = [
+                {'service_name': service[0], 'package_count': service[1]} for service in services_with_packages
+            ]
+
+            summary = {
+                'total_users': total_users,
+                'active_professionals': active_professionals,
+                'pending_professionals': pending_professionals,
+                'total_services': total_services,
+                'services_distribution': services_distribution
+            }
+
+            return {'summary': summary}, 200
+
+        except SQLAlchemyError as e:
+            return {'message': 'An error occurred while fetching summary data', 'error': str(e)}, 500
 
 
 
@@ -402,3 +442,4 @@ admin_api.add_resource(CreatePackage, '/admin/service/<int:service_id>/package')
 admin_api.add_resource(UpdatePackage, '/admin/package/<int:package_id>')
 admin_api.add_resource(DeletePackage, '/admin/package/<int:package_id>')
 admin_api.add_resource(AdminSearch, '/admin/search')
+admin_api.add_resource(AdminSummary, '/admin/summary')
