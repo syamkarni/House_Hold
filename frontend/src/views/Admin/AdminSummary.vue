@@ -16,7 +16,7 @@
   
   <script>
   import { Chart } from 'chart.js/auto';
-  import axios from 'axios';
+  import axios from '@/plugins/axios';
   
   export default {
     name: "AdminSummary",
