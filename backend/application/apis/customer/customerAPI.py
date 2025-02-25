@@ -3,6 +3,7 @@ from flask_restful import Resource, Api
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.data.model import Service, ServiceRequest, Customer, Review, db, Package
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import func
 import datetime
 
 customer_bp = Blueprint('customer_bp', __name__)
@@ -414,6 +415,78 @@ class CustomerSearchAPI(Resource):
             return {'message': 'Database error occurred while searching', 'error': str(e)}, 500
         except Exception as e:
             return {'message': 'Unexpected error', 'error': str(e)}, 500
+        
+class CustomerSummaryAPI(Resource):
+    @jwt_required()
+    def get(self):
+        """
+        Returns summary data for the authenticated customer.
+        """
+        try:
+            identity = get_jwt_identity()
+            user_id = identity['user_id']
+            roles = identity['roles']
+            if 'customer' not in roles:
+                return {'message': 'Unauthorized: Only customers can access summary'}, 403
+
+            customer = Customer.query.filter_by(user_id=user_id).first()
+            if not customer:
+                return {'message': 'Customer profile not found'}, 404
+
+            total_requests = ServiceRequest.query.filter_by(customer_id=customer.id).count()
+
+            completed_requests = ServiceRequest.query.filter_by(
+                customer_id=customer.id,
+                service_status='completed'
+            ).count()
+
+            canceled_requests = ServiceRequest.query.filter_by(
+                customer_id=customer.id,
+                service_status='cancelled'
+            ).count()
+
+            average_rating_given = db.session.query(func.avg(Review.rating)).filter_by(
+                customer_id=customer.id
+            ).scalar()
+            average_rating_given = round(average_rating_given, 2) if average_rating_given else 0
+
+            rating_rows = (
+                db.session.query(Review.rating, func.count(Review.rating))
+                .filter_by(customer_id=customer.id)
+                .group_by(Review.rating)
+                .all()
+            )
+            distribution_dict = {row[0]: row[1] for row in rating_rows}
+
+            rating_distribution = []
+            for r in range(1, 6):
+                rating_distribution.append({
+                    "rating": r,
+                    "count": distribution_dict.get(r, 0)
+                })
+
+            summary = {
+                "total_requests": total_requests,
+                "completed_requests": completed_requests,
+                "canceled_requests": canceled_requests,
+                "average_rating_given": average_rating_given,
+                "rating_distribution": rating_distribution
+            }
+
+            return {"summary": summary}, 200
+
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {
+                "message": "An error occurred while fetching customer summary",
+                "error": str(e)
+            }, 500
+        except Exception as e:
+            return {
+                "message": "Unexpected error occurred",
+                "error": str(e)
+            }, 500
+
 
 
 
@@ -427,3 +500,4 @@ customer_api.add_resource(ProvideReview, '/customer/service_request/<int:request
 customer_api.add_resource(CustomerProfileAPI, '/customer/profile')
 customer_api.add_resource(CloseServiceRequest, '/customer/service_request/<int:request_id>/close')
 customer_api.add_resource(CustomerSearchAPI, '/customer/search')
+customer_api.add_resource(CustomerSummaryAPI, '/customer/summary')

@@ -7,6 +7,7 @@
       <ul>
         <li><router-link to="/customer/services">View Available Services</router-link></li>
         <li><router-link to="/customer/service_requests">View Service History</router-link></li>
+        <li><router-link to="/customer/summary">View Summary</router-link></li>
         <!-- <li>
           <router-link
             :to="{ name: 'ProvideReview', params: { requestId: 1 } }"

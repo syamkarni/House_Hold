@@ -25,6 +25,7 @@ import ProfessionalPendingApproval from '@/views/Professional/ProfessionalPendin
 import AdminSearch from '@/views/Admin/AdminSearch.vue';
 import ProfessionalSearch from '@/views/Professional/ProfessionalSearch.vue';
 import ProfessionalSummary from '@/views/Professional/ProfessionalSummary.vue';
+import CustomerSummary from '@/views/Customer/CustomerSummary.vue';
 
 import SearchResults from '@/views/SearchResults.vue';
 
@@ -89,6 +90,12 @@ const routes = [
     name: 'ProfessionalSummary',
     component: ProfessionalSummary,
     meta: { requiresAuth: true, role: 'professional' }
+  },  
+  {
+    path: '/customer/summary',
+    name: 'CustomerSummary',
+    component: CustomerSummary,
+    meta: { requiresAuth: true, role: 'customer' }
   },  
   
   {
