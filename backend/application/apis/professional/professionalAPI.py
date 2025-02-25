@@ -374,6 +374,47 @@ class ProfessionalSearchAPI(Resource):
                 'error': str(e)
             }, 500
 
+class ProfessionalSummaryAPI(Resource):
+    @jwt_required()
+    def get(self):
+        try:
+            identity = get_jwt_identity()
+            user_id = identity['user_id']
+            roles = identity['roles']
+            if 'professional' not in roles:
+                return {'message': 'Unauthorized: Only professionals can access summary'}, 403
+
+            professional = ServiceProfessional.query.filter_by(user_id=user_id).first()
+            if not professional:
+                return {'message': 'Professional profile not found'}, 404
+
+            assigned_count = ServiceRequest.query.filter_by(
+                professional_id=professional.id,
+                service_status='assigned'
+            ).count()
+
+            completed_count = ServiceRequest.query.filter_by(
+                professional_id=professional.id,
+                service_status='completed'
+            ).count()
+
+            average_rating = db.session.query(db.func.avg(Review.rating)).filter_by(
+                professional_id=professional.id
+            ).scalar()
+            average_rating = round(average_rating, 2) if average_rating else 0
+
+            summary_data = {
+                "assigned_count": assigned_count,
+                "completed_count": completed_count,
+                "average_rating": average_rating
+            }
+
+            return {"summary": summary_data}, 200
+        except SQLAlchemyError as e:
+            return {"message": "An error occurred while fetching professional summary", "error": str(e)}, 500
+        except Exception as e:
+            return {"message": "Unexpected error occurred", "error": str(e)}, 500
+
 
 
 
@@ -388,3 +429,4 @@ professional_api.add_resource(CompleteServiceRequest, '/professional/service_req
 professional_api.add_resource(ProfessionalProfileAPI, '/professional/profile')
 professional_api.add_resource(GetAvailableServices, '/professional/services')
 professional_api.add_resource(ProfessionalSearchAPI, '/professional/search')
+professional_api.add_resource(ProfessionalSummaryAPI, '/professional/summary')

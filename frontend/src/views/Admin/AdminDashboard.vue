@@ -8,6 +8,7 @@
         <li><router-link to="/admin/manage-services">Manage Services</router-link></li>
         <li><router-link to="/admin/approve-professionals">Approve Professionals</router-link></li>
         <li><router-link to="/admin/admin-reports">Reports</router-link></li>
+        <li><router-link to="/admin/admin-summary">View Summary</router-link></li>
         <!-- <li><router-link to="/admin/search">Search</router-link></li> -->
     </ul> 
     <router-view />

@@ -9,6 +9,7 @@
       <!-- Dashboard content -->
       <ul>
         <li><router-link to="/professional/assigned-requests">Assigned Requests</router-link></li>
+        <li><router-link to="/professional/summary">View Summary</router-link></li>
         <!-- <li>
           <router-link to="/professional/search">
             Search Service Requests
