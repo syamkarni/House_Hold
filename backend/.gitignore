@@ -10,3 +10,4 @@ db_data.py
 register_api.log
 *.log
 /testing
+/myenv1

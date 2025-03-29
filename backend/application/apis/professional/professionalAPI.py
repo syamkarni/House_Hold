@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.data.model import ServiceRequest, ServiceProfessional, db, Service, Review
 from sqlalchemy.exc import SQLAlchemyError
 import datetime
+from application.cache import cache
 
 professional_bp = Blueprint('professional_bp', __name__)
 professional_api = Api(professional_bp)
@@ -376,6 +377,7 @@ class ProfessionalSearchAPI(Resource):
 
 class ProfessionalSummaryAPI(Resource):
     @jwt_required()
+    @cache.memoize(timeout=60)
     def get(self):
         try:
             identity = get_jwt_identity()

@@ -4,6 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from application.data.model import User, ServiceProfessional, Service, db, Package
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
+from application.cache import cache
 
 admin_bp = Blueprint('admin_bp', __name__)
 admin_api = Api(admin_bp)
@@ -111,6 +112,7 @@ class CreateService(Resource):
         
 class AdminServices(Resource):
     @jwt_required()
+    @cache.cached(timeout=60)
     def get(self):
         try:
             identity = get_jwt_identity()
@@ -146,6 +148,7 @@ class AdminServices(Resource):
         
 class GetUsers(Resource):
     @jwt_required()
+    @cache.cached(timeout=60)
     def get(self):
         try:
             identity = get_jwt_identity()
@@ -280,6 +283,7 @@ class DeletePackage(Resource):
 
 class PendingProfessionals(Resource):
     @jwt_required()
+    @cache.cached(timeout=60)
     def get(self):
         try:
             identity = get_jwt_identity()
@@ -387,6 +391,7 @@ class AdminSearch(Resource):
 
 class AdminSummary(Resource):
     @jwt_required()
+    @cache.cached(timeout=60)
     def get(self):
         try:
             identity = get_jwt_identity()

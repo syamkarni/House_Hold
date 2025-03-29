@@ -5,6 +5,7 @@ from application.data.model import Service, ServiceRequest, Customer, Review, db
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
 import datetime
+from application.cache import cache
 
 customer_bp = Blueprint('customer_bp', __name__)
 customer_api = Api(customer_bp)
@@ -418,6 +419,7 @@ class CustomerSearchAPI(Resource):
         
 class CustomerSummaryAPI(Resource):
     @jwt_required()
+    @cache.memoize(timeout=60)
     def get(self):
         """
         Returns summary data for the authenticated customer.
