@@ -1,5 +1,5 @@
 import os
-from flask import Flask
+from flask import Flask,send_from_directory
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -53,7 +53,7 @@ def index():
         }
     }
 
-@app.route('/api/export') #for triggering
+@app.route('/report/export') #for triggering
 def export_csv():
     result=csv_report.delay()
     return jsonify({
@@ -61,14 +61,17 @@ def export_csv():
         "result":result.result,
     })
 
-@app.route('/api/csv_result/<id>') #testing purpose only
+@app.route('/report/csv_result/<id>') #testing purpose only
 def csv_result(id):
     result= AsyncResult(id)
-    return {
-        'ready':result.ready(),
-        'successful':result.successful(),
-        'value':result.result if result.ready() else None,
-    }
+    return send_from_directory('static', result.result) if result.ready() else jsonify({
+        "message":"The task is still running"
+    })
+    # return {
+    #     'ready':result.ready(),
+    #     'successful':result.successful(),
+    #     'value':result.result if result.ready() else None,
+    # }
 
 
 if __name__ == '__main__':
