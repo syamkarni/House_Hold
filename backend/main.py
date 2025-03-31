@@ -8,9 +8,12 @@ from flask_mail import Mail
 from application.data.model import db
 from application.cache import cache
 from application.apis import api_blueprints
-from application.tasks import make_celery
+# from application.tasks import make_celery
 import application.config as config
 from flask import jsonify
+from application.celery_init import celery_init_app
+from application.tasks import csv_report
+from celery.result import AsyncResult
 
 
 app = Flask(__name__)
@@ -28,8 +31,8 @@ jwt = JWTManager(app)
 CORS(app)
 cache.init_app(app)
 mail = Mail(app)
-celery = make_celery(app)
-
+# celery = make_celery(app)
+celery=celery_init_app(app)
 
 
 
@@ -49,6 +52,24 @@ def index():
             "View Service Requests": "/customer/service_requests (GET)"
         }
     }
+
+@app.route('/api/export') #for triggering
+def export_csv():
+    result=csv_report.delay()
+    return jsonify({
+        "id":result.id,
+        "result":result.result,
+    })
+
+@app.route('/api/csv_result/<id>') #testing purpose only
+def csv_result(id):
+    result= AsyncResult(id)
+    return {
+        'ready':result.ready(),
+        'successful':result.successful(),
+        'value':result.result if result.ready() else None,
+    }
+
 
 if __name__ == '__main__':
     app.run(debug=True)
