@@ -1,4 +1,5 @@
 from celery import shared_task
+from collections import defaultdict
 import datetime
 import csv
 import json
@@ -87,29 +88,81 @@ def monthly_report():
     return "Monthly reports sent"
 
 
-# @shared_task(ignore_result=False, name="daily_reminder")
-# def daily_reminder():
-#     pending_requests = (
-#         ServiceRequest.query.filter_by(service_status='requested')
-#         .join(ServiceProfessional, ServiceRequest.professional_id == ServiceProfessional.id)
-#         .add_columns(ServiceProfessional.name)
-#         .all()
-#     )
+@shared_task(ignore_result=False, name="daily_reminder")
+def daily_reminder():
+    """
+    1) Email the admin about any professionals needing approval.
+    2) Email each professional who has requested (not yet accepted/rejected) service requests.
+    """
 
-#     for req in pending_requests:
-#         professional_name = req.name
-#         chat_hook_url = 'https://chat.googleapis.com/v1/spaces/AAAAejlaOJg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=O4X2zRmxL9q2fFueEi1ySro61SvjWPgn5qmDLyV92mI'
-#         message = {
-#             "text": f"Reminder: {professional_name}! You have pending service requests. Please check the platform."
-#         }
-#         try:
-#             response = requests.post(chat_hook_url, json=message, timeout=10)
-#             response.raise_for_status()
-#         except requests.RequestException as e:
-#             print(f"Failed to send reminder to {professional_name}: {e}")
-#             continue
+    #####################################
+    # PART A) Admin Reminder
+    #####################################
+    # For simplicity, assume there's exactly one admin with role='admin'
+    admin_user = User.query.join(User.roles).filter_by(name='admin').first()
+    admin_email = admin_user.u_mail if admin_user else None
 
-#     return "Daily reminders sent successfully!"
+    # Find unapproved professionals
+    pending_professionals = ServiceProfessional.query.filter_by(approved=False).all()
+    pending_count = len(pending_professionals)
+
+    if admin_email and pending_count > 0:
+        # Prepare data to render the email template
+        admin_context = {
+            "pending_count": pending_count,
+            "pending_list": [prof.name for prof in pending_professionals],  # or any extra data
+        }
+        # Render HTML template
+        rendered_admin_email = format_report('templates/daily_reminder_admin.html', admin_context)
+
+        # Send the email
+        send_email(
+            to_address=admin_email,
+            subject="Daily Reminder: Approvals Pending",
+            message=rendered_admin_email,
+            content="html"
+        )
+
+    #####################################
+    # PART B) Professional Reminders
+    #####################################
+    requests = ServiceRequest.query.filter_by(service_status='requested').all()
+
+    # Group requests by the assigned professional
+    pro_map = defaultdict(list)
+    for req in requests:
+        if req.professional:
+            pro_map[req.professional].append(req)
+
+    # For each professional, build & send an email listing their pending requests
+    for professional, req_list in pro_map.items():
+        if professional.is_blocked or not professional.approved:
+            # Skip blocked or not-yet-approved professionals
+            continue
+
+        prof_user = professional.user
+        if not prof_user or not prof_user.u_mail:
+            continue
+
+        # Build the context for the professional
+        context = {
+            "professional_name": professional.name,
+            "requests_count": len(req_list),
+            "requests": req_list,  # We'll loop over them in the template
+        }
+        # Render the HTML
+        rendered_prof_email = format_report('templates/daily_reminder_professional.html', context)
+
+        # Send the email
+        send_email(
+            to_address=prof_user.u_mail,
+            subject="Daily Reminder: You Have Pending Requests",
+            message=rendered_prof_email,
+            content="html"
+        )
+
+    return "Daily reminders sent successfully!"
+
 
 
 # @shared_task(ignore_result=False, name="daily_update")

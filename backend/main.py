@@ -115,18 +115,21 @@ def send_reports():
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
         crontab(minute=0, hour=8, day_of_month=1),
+        # crontab(minute='*/1'),
         monthly_report.s(),
     )
 
     sender.add_periodic_task(
         crontab(hour=18, minute=0),
+        # crontab(minute='*/1'),
         daily_reminder.s(),
     )
 
-    sender.add_periodic_task(
-        schedule(5.0),
-        daily_reminder.s(),
-    )
+    # from celery.schedules import schedule
+    # sender.add_periodic_task(
+    #     schedule(5.0),
+    #     daily_reminder.s(),
+    # )
 
 
 if __name__ == '__main__':

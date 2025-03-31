@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Daily Reminder for Professional</title>
+</head>
+<body>
+    <h1>Daily Reminder (Professional)</h1>
+    <p>Hello {{professional_name}},</p>
+
+    <p>You have {{requests_count}} pending service request(s). Please accept or reject them soon!</p>
+    
+    <ul>
+      {% for req in requests %}
+        <li>
+          Request ID: {{req.id}}
+          (Requested on: {{req.date_of_request.strftime("%Y-%m-%d") if req.date_of_request else ""}} )
+        </li>
+      {% endfor %}
+    </ul>
+
+    <p>Thank you for using our platform!</p>
+</body>
+</html>

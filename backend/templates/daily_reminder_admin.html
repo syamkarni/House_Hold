@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Daily Reminder for Admin</title>
+</head>
+<body>
+    <h1>Daily Reminder (Admin)</h1>
+    <p>Hello Admin,</p>
+    {% if pending_count > 1 %}
+      <p>There are {{pending_count}} professionals awaiting approval.</p>
+    {% else %}
+      <p>There is {{pending_count}} professional awaiting approval.</p>
+    {% endif %}
+
+    <p>They are:</p>
+    <ul>
+      {% for prof_name in pending_list %}
+        <li>{{prof_name}}</li>
+      {% endfor %}
+    </ul>
+
+    <p>Please review them at your earliest convenience.</p>
+</body>
+</html>
