@@ -12,8 +12,9 @@ from application.apis import api_blueprints
 import application.config as config
 from flask import jsonify
 from application.celery_init import celery_init_app
-from application.tasks import csv_report
+from application.tasks import csv_report, monthly_report
 from celery.result import AsyncResult
+from celery.schedules import crontab
 
 
 app = Flask(__name__)
@@ -33,6 +34,8 @@ cache.init_app(app)
 mail = Mail(app)
 # celery = make_celery(app)
 celery=celery_init_app(app)
+celery.autodiscover_tasks()
+
 
 
 
@@ -72,6 +75,27 @@ def csv_result(id):
     #     'successful':result.successful(),
     #     'value':result.result if result.ready() else None,
     # }
+
+@app.route('/api/mail')
+def send_reports():
+    res = monthly_report.delay()
+    return {
+        "result": res.result
+    }
+
+# @celery.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+#     sender.add_periodic_task(
+#         crontab(minute = '*/2'),
+#         monthly_report.s(),
+#     )
+@celery.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    # Executes on the 1st day of every month at 8:00 AM
+    sender.add_periodic_task(
+        crontab(minute=0, hour=8, day_of_month=1),
+        monthly_report.s(),
+    )
 
 
 if __name__ == '__main__':

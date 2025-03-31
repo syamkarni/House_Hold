@@ -12,3 +12,6 @@ register_api.log
 /testing
 /myenv1
 /static
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
