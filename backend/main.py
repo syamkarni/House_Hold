@@ -12,7 +12,7 @@ from application.apis import api_blueprints
 import application.config as config
 from flask import jsonify
 from application.celery_init import celery_init_app
-from application.tasks import csv_report, monthly_report
+from application.tasks import csv_report, monthly_report, daily_reminder
 from celery.result import AsyncResult
 from celery.schedules import crontab
 
@@ -89,12 +89,43 @@ def send_reports():
 #         crontab(minute = '*/2'),
 #         monthly_report.s(),
 #     )
+# @celery.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+#     # Executes on the 1st day of every month at 8:00 AM
+#     sender.add_periodic_task(
+#         crontab(minute=0, hour=8, day_of_month=1),
+#         monthly_report.s(),
+#     )
+#     sender.add_periodic_task(
+#         crontab(hour=18, minute=0),
+#         daily_reminder.s(),
+#     )
+
+# from celery.schedules import schedule
+
+# @celery.on_after_configure.connect
+# def setup_periodic_tasks(sender, **kwargs):
+#     # every 5 seconds
+#     sender.add_periodic_task(
+#         schedule(5.0),
+#         daily_reminder.s(),
+#     )
+
 @celery.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
-    # Executes on the 1st day of every month at 8:00 AM
     sender.add_periodic_task(
         crontab(minute=0, hour=8, day_of_month=1),
         monthly_report.s(),
+    )
+
+    sender.add_periodic_task(
+        crontab(hour=18, minute=0),
+        daily_reminder.s(),
+    )
+
+    sender.add_periodic_task(
+        schedule(5.0),
+        daily_reminder.s(),
     )
 
 

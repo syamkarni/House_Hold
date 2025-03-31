@@ -6,6 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy import func
 import datetime
 from application.cache import cache
+from application.tasks import notify_customer_action
 
 customer_bp = Blueprint('customer_bp', __name__)
 customer_api = Api(customer_bp)
@@ -209,6 +210,8 @@ class CancelServiceRequest(Resource):
 
             service_request.service_status = 'cancelled'
             db.session.commit()
+            user_email = customer.user.u_mail
+            notify_customer_action.delay(user_email, "cancel_service_request", extra_info=f"Request ID={request_id}")
             return {'message': 'Service request cancelled successfully'}, 200
         except SQLAlchemyError as e:
             db.session.rollback()
@@ -236,6 +239,10 @@ class CloseServiceRequest(Resource):
             service_request.service_status = 'completed'
             service_request.date_of_completion = datetime.datetime.utcnow()
             db.session.commit()
+
+            user_email = customer.user.u_mail
+            notify_customer_action.delay(user_email, "close_service_request", extra_info=f"Request ID={request_id}")
+
 
             return {'message': 'Service request closed successfully'}, 200
 
@@ -289,6 +296,9 @@ class ProvideReview(Resource):
             )
             db.session.add(new_review)
             db.session.commit()
+
+            user_email = customer.user.u_mail
+            notify_customer_action.delay(user_email, "provide_review", extra_info=f"Rating={rating}, Comment={comment}")
 
             return {'message': 'Review submitted successfully'}, 201
         except SQLAlchemyError as e:

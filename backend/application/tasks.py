@@ -86,6 +86,89 @@ def monthly_report():
 
     return "Monthly reports sent"
 
-@shared_task(ignore_result=False, name="daily_update")
-def delivery_report():
-    return 'The delivery status is set to user'
+
+# @shared_task(ignore_result=False, name="daily_reminder")
+# def daily_reminder():
+#     pending_requests = (
+#         ServiceRequest.query.filter_by(service_status='requested')
+#         .join(ServiceProfessional, ServiceRequest.professional_id == ServiceProfessional.id)
+#         .add_columns(ServiceProfessional.name)
+#         .all()
+#     )
+
+#     for req in pending_requests:
+#         professional_name = req.name
+#         chat_hook_url = 'https://chat.googleapis.com/v1/spaces/AAAAejlaOJg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=O4X2zRmxL9q2fFueEi1ySro61SvjWPgn5qmDLyV92mI'
+#         message = {
+#             "text": f"Reminder: {professional_name}! You have pending service requests. Please check the platform."
+#         }
+#         try:
+#             response = requests.post(chat_hook_url, json=message, timeout=10)
+#             response.raise_for_status()
+#         except requests.RequestException as e:
+#             print(f"Failed to send reminder to {professional_name}: {e}")
+#             continue
+
+#     return "Daily reminders sent successfully!"
+
+
+# @shared_task(ignore_result=False, name="daily_update")
+# def delivery_report():
+
+#     #https://chat.googleapis.com/v1/spaces/AAAAejlaOJg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=O4X2zRmxL9q2fFueEi1ySro61SvjWPgn5qmDLyV92mI
+#     return 'The delivery status is set to user'
+
+
+
+
+# @shared_task(name="notify_professional_approval")
+# def notify_professional_approval(prof_email, is_approved):
+#     """
+#     Sends a Google Chat (or other) notification that the professional's profile
+#     was just approved or rejected.
+#     """
+#     if is_approved:
+#         text = f"Congratulations! Your professional profile ({prof_email}) is now approved."
+#     else:
+#         text = f"Sorry, your professional profile ({prof_email}) has been rejected by the admin."
+
+#     chat_webhook = "https://chat.googleapis.com/v1/spaces/AAAAsample/messages?key=YOURKEY&token=YOURTOKEN"
+#     payload = {"text": text}
+#     try:
+#         response = requests.post(chat_webhook, json=payload, timeout=10)
+#         response.raise_for_status()
+#         return f"Notification sent to {prof_email} with status code {response.status_code}"
+#     except requests.RequestException as e:
+#         return f"Failed to send notification to {prof_email}: {e}"
+
+
+
+from celery import shared_task
+import requests
+
+@shared_task(name="notify_customer_action")
+def notify_customer_action(email, action_type, extra_info=None):
+    """
+    Notifies the customer that they have performed a certain action:
+      - close_service_request
+      - cancel_service_request
+      - provide_review
+    'extra_info' can be any additional data you want to display.
+    """
+    # Build the message text
+    text = f"Hello {email}, you have just performed the action: {action_type}.\n"
+    if extra_info:
+        text += f"Details: {extra_info}\n"
+    text += "Thanks for using our platform!"
+
+    # Example: Send to Google Chat (replace with your actual webhook)
+    webhook_url = "https://chat.googleapis.com/v1/spaces/AAAAejlaOJg/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=O4X2zRmxL9q2fFueEi1ySro61SvjWPgn5qmDLyV92mI"
+    payload = {"text": text}
+
+    try:
+        response = requests.post(webhook_url, json=payload, timeout=10)
+        response.raise_for_status()
+        return f"Notification sent to {email}, status={response.status_code}"
+    except requests.RequestException as e:
+        return f"Failed to notify {email}: {e}"
+
